@@ -188,6 +188,7 @@ productUrlsGroupedByHost
 							try {
 								return parser.extractProductFromDocument(pDoc.getDocument(), pDoc.getUrl(), pDoc.getData());
 							} catch (CannotParseDocumentException e) {
+								logger.warn("Cannot Extract product info from document with url " + pDoc.getUrl() + " reason: ", e);
 								return null;
 							}
 						})

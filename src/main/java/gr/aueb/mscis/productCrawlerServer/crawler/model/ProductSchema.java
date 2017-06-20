@@ -143,6 +143,7 @@ public class ProductSchema{
 		
 	}
 	public boolean isValid(){
+		System.out.println(this);
 		if (name.length() == 0 
 				||
 				manufacturer.length() == 0

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -37,7 +38,9 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					.select(paginationSelector.getPaginatorSelector())
 					.stream()
 					.map(el->el.attr("href"))
+					.filter(el -> UrlValidator.getInstance().isValid(el))
 					.collect(Collectors.toSet());
+			
 			
 			if (paginationUrls.size() == 1){
 				allPagesUrlString.add(paginationUrls.iterator().next());
@@ -57,9 +60,10 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					
 					String lastPageUrl = paginationUrlsSortedDesc.get(0);
 					String firstPageUrl = paginationUrlsSortedDesc.get(paginationUrlsSortedDesc.size()-1);
-					
+
 					int greaterOffset = ParserUtils.getUrlNumberParameter(lastPageUrl, paginationSelector.getPaginationUrlParameter()).orElse(-1);
 					int smallestOffset = ParserUtils.getUrlNumberParameter(firstPageUrl, paginationSelector.getPaginationUrlParameter()).orElse(-1);
+					
 					//generate missing
 					final int step = paginationSelector.getStep();
 					for (int i=smallestOffset-step; i<=greaterOffset; i+=step){
@@ -67,8 +71,8 @@ public class GenericParser extends GenericHTMLDocumentParser{
 						allPagesUrlString.add(urlToAdd);
 					}
 			}
-		} catch (Throwable e) {
-			throw new CannotParseDocumentException("Cannot detect last pagination url " + e.getMessage()!=null?e.getMessage():"", e);
+		} catch (Exception e) {
+			throw new CannotParseDocumentException("Cannot detect last pagination url " + e.getMessage(), e);
 		}
 		
 		
@@ -91,8 +95,8 @@ public class GenericParser extends GenericHTMLDocumentParser{
 				.stream()
 				.collect(Collectors.toList());
 			
-		} catch (Throwable e) {
-			throw new CannotParseDocumentException("Cannot extract element " + e.getMessage()!=null?e.getMessage():"", e);
+		} catch (Exception e) {
+			throw new CannotParseDocumentException("Cannot extract element " + e.getMessage(), e);
 		}
 		
 		return ProductUrl.fromStringList(productUrlsStrings);
@@ -117,7 +121,7 @@ public class GenericParser extends GenericHTMLDocumentParser{
 								.stream()
 								.map(el->el.text().trim())
 								.collect(Collectors.toList());
-					
+				
 				if (attributesKeys.size() != attributesValues.size())
 					throw new CannotParseDocumentException("Attribute keys and attribute values lists does not have the same length in product Url: " + productUrl);
 					
@@ -159,12 +163,8 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					productBuilder.setImageUrl(imageElement.get().attr("href"));
 			}
 			return productBuilder.setUrl(productUrl).build();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			if (e.getMessage() != null){
-				throw new CannotParseDocumentException("Cannot extract product from Page " + e.getMessage());	
-			}
-			throw new CannotParseDocumentException("Cannot extract product from Page");
+		} catch (Exception e) {
+			throw new CannotParseDocumentException("Cannot extract product from Page", e);
 		}
 	}
 	

@@ -14,12 +14,12 @@ import gr.aueb.mscis.productCrawlerServer.crawler.model.ProductSchema;
 
 public class SchemaMatcher {
 	public static final String manufacturerValueRegex = ".*";
-	public static final String manufacturerKeyRegex = "(μάρκα|μαρκα)";
+	public static final String manufacturerKeyRegex = "(μάρκα|μαρκα|κατασκευαστής|κατασκευαστης)";
 	private static Pattern manufacturerValuePattern = Pattern.compile(manufacturerValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern manufacturerKeyPattern = Pattern.compile(manufacturerKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
 	public static final String screenResolutionValueRegex = "(\\d+)\\s{0,1}(x|X)\\s{0,1}(\\d+)";
-	public static final String screenResolutionKeyRegex = "(Οθόνη|οθονη)";
+	public static final String screenResolutionKeyRegex = "(Οθόνη|οθονη|ανάλυση|αναλυση)";
 	private static Pattern screenResolutionValuePattern = Pattern.compile(screenResolutionValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern screenResolutionKeyPattern = Pattern.compile(screenResolutionKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
@@ -28,18 +28,18 @@ public class SchemaMatcher {
 	private static Pattern ramValuePattern = Pattern.compile(ramValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern ramKeyPattern = Pattern.compile(ramKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
-	public static final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"))";
-	public static final String screenSizeKeyRegex = "(Οθόνη|οθονη)";
+	public static final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"){1}|(inches){1})";
+	public static final String screenSizeKeyRegex = "(μέγεθος οθόνης|μεγεθος οθονης|οθόνη|οθονη)";
 	private static Pattern screenSizeValuePattern = Pattern.compile(screenSizeValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern screenSizeKeyPattern = Pattern.compile(screenSizeKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
-	public static final String storageValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
-	public static final String storageKeyRegex = "(Αποθηκευτικός Χώρος|Εσωτερική μνήμη|Αποθηκευτικος Χωρος|Εσωτερικη μνημη)";
+	public static final String storageValueRegex = "(\\d+)(\\.){0,1}(\\d){0,2}(\\s){0,1}((GB)|(MB))";
+	public static final String storageKeyRegex = "(Αποθηκευτικός Χώρος|Εσωτερική μνήμη|Αποθηκευτικος Χωρος|Εσωτερικη μνημη|χωρητικότητα)";
 	private static Pattern storageValuePattern = Pattern.compile(storageValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern storageKeyPattern = Pattern.compile(storageKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
 	public static final String cameraResolutionValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
-	public static final String cameraResolutionKeyRegex = "(Πίσω|πισω|Camera)";
+	public static final String cameraResolutionKeyRegex = "(Πίσω|πισω|Camera|κάμερα|καμερα)";
 	private static Pattern cameraResolutionValuePattern = Pattern.compile(cameraResolutionValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern cameraResolutionKeyPattern = Pattern.compile(cameraResolutionKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
@@ -152,7 +152,7 @@ public class SchemaMatcher {
 	
 	private Double findScreenSize(Product product){
 		List<String> possibleValues = findPossibleAttributesFirstMatch(product, screenSizeKeyPattern, screenSizeValuePattern);
-			
+		
 		possibleValues = possibleValues.stream().map(val->val.replace("'", "").replace("\"", "").trim()).collect(Collectors.toList());
 		if (possibleValues.isEmpty()){
 			//System.err.println("Did not found screen size property for Product with name: " + product.getName() + " and url: " + product.getUrl());
@@ -185,7 +185,11 @@ public class SchemaMatcher {
 			validations.add("Found Multiple Storage");
 		}
 		try{
-			return Double.valueOf(possibleValues.get(0).replaceAll("[^\\d.]", "").trim());
+			Double storage = Double.valueOf(possibleValues.get(0).replaceAll("[^\\d.]", "").trim());
+			if (storage > 1000){
+				storage = storage/1000.d;
+			}
+			return storage;
 		} catch (NumberFormatException e) {
 			//System.err.println("Cannot parse (as Double) storage property for Product with name: " + product.getName() + " and url: " + product.getUrl() + " values " + possibleValues.toString());
 			validations.add("Parse Storage failed: " + possibleValues.get(0));

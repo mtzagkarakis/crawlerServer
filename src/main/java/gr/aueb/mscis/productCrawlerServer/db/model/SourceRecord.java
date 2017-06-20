@@ -97,6 +97,9 @@ public class SourceRecord implements BeanValidator<SourceRecord>{
 	@Size(min=1, max=250)
 	private String productAttributeValueSelector;
 	
+	@Column(name="is_active")
+	private boolean isActive;
+	
 	public PaginationSelector getPaginationSelector(){
 		return new PaginationSelector(paginationSelectorQuery, paginationUrlParameter, paginationStep);
 	}
@@ -201,6 +204,12 @@ public class SourceRecord implements BeanValidator<SourceRecord>{
 	}
 	public void setProductAttributeValueSelector(String productAttributeValueSelector) {
 		this.productAttributeValueSelector = productAttributeValueSelector;
+	}
+	public boolean isActive() {
+		return isActive;
+	}
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 	
 	

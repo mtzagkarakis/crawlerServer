@@ -37,7 +37,7 @@ public class ProductController {
 			
 			List<SourceRecord> sources = 
 				EntityManagerUtils.doInTransaction(em-> {
-					return em.createQuery("select sr from SourceRecord sr", SourceRecord.class).getResultList();
+					return em.createQuery("select sr from SourceRecord sr where sr.isActive>0", SourceRecord.class).getResultList();
 				});
 			if (sources != null){
 				sources = sources.stream().filter(sr->sr.validate(logger)).collect(Collectors.toList());

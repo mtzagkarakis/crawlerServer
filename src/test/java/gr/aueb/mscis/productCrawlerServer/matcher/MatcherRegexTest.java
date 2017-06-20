@@ -25,7 +25,9 @@ public class MatcherRegexTest {
 	public final String manufacturerValueRegex = ".*";
 	public final String screenResolutionValueRegex = "(\\d+)\\s{0,1}(x|X)\\s{0,1}(\\d+)";
 	public final String ramValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
-	public final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"))";
+//	public final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"))";
+	public final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"){0,1}|(inches){0,1})";
+
 	public final String storageValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
 	public final String cameraResolutionValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
 	public final String operatingSystemValueRegex = "(?i)(android|ios|apple|windows|blackberry)";
@@ -87,13 +89,15 @@ public class MatcherRegexTest {
 		String value3 = "4.5\"";
 		String value4 = "4\"";
 		String value5 = "6.2\"";
+		String value6 = "4.7 inches";
 		
 		Assert.assertEquals("4''", getFirstMatch(pattern.matcher(value0)).orElse(""));
 		Assert.assertEquals("5''", getFirstMatch(pattern.matcher(value1)).orElse(""));
 		Assert.assertEquals("2.8''", getFirstMatch(pattern.matcher(value2)).orElse(""));
 		Assert.assertEquals("4.5\"", getFirstMatch(pattern.matcher(value3)).orElse(""));
 		Assert.assertEquals("4\"", getFirstMatch(pattern.matcher(value4)).orElse(""));
-		Assert.assertEquals("6.2\"", getFirstMatch(pattern.matcher(value5)).orElse(""));	
+		Assert.assertEquals("6.2\"", getFirstMatch(pattern.matcher(value5)).orElse(""));
+		Assert.assertEquals("4.7 ", getFirstMatch(pattern.matcher(value6)).orElse(""));
 	}
 	
 	
@@ -216,18 +220,4 @@ public class MatcherRegexTest {
 
 	}
 	
-	@Test
-	public void t(){
-		pattern = Pattern.compile("(μάρκα|μαρκα)", Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
-		
-		String m = "Μάρκα";
-		String me = "Μάρκα Επεξεργαστή";
-		String mp = "μία Μάρκα Προγράμματος";
-		String p = "Πρόγραμμα";
-		
-		System.out.println(pattern.matcher(m).matches());
-		System.out.println(pattern.matcher(me).matches());
-		System.out.println(pattern.matcher(mp).matches());
-		System.out.println(pattern.matcher(p).matches());
-	}
 }
