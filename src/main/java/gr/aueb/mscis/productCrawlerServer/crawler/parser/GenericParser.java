@@ -158,9 +158,17 @@ public class GenericParser extends GenericHTMLDocumentParser{
 			}
 			
 			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductImageSelector()) == false){
+				
 				Optional<Element> imageElement = document.select(productSelector.getProductImageSelector()).stream().findAny();
-				if (imageElement.isPresent())
-					productBuilder.setImageUrl(imageElement.get().attr("href"));
+				if (imageElement.isPresent()){
+					String possibleImage = imageElement.get().attr("href");
+					if (possibleImage.length() > 0)
+						productBuilder.setImageUrl(possibleImage);
+					else{
+						possibleImage = imageElement.get().attr("src");
+						productBuilder.setImageUrl(possibleImage);
+					}
+				}
 			}
 			return productBuilder.setUrl(productUrl).build();
 		} catch (Exception e) {

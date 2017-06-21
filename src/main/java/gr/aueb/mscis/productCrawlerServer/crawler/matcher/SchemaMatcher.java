@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -13,6 +14,8 @@ import gr.aueb.mscis.productCrawlerServer.crawler.model.Product;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.ProductSchema;
 
 public class SchemaMatcher {
+	public static final String manufacturers = "acer,alcatel,allview,amazon,amoi,apple,archos,asus,at&t,benefon,benq,benq-siemens,bird,blackberry,blu,bosch,bq,casio,cat,celkon,chea,coolpad,dell,emporia,energizer,ericsson,eten,fujitsu siemens,garmin-asus,gigabyte,gionee,google,haier,hp,htc,huawei,i-mate,i-mobile,icemobile,innostream,inq,intex,jolla,karbonn,kyocera,lava,leeco,lenovo,lg,maxon,maxwest,meizu,micromax,microsoft,mitac,mitsubishi,modu,motorola,mwg,nec,neonode,niu,nokia,nvidia,o2,oneplus,oppo,orange,palm,panasonic,pantech,parla,philips,plum,posh,prestigio,qmobile,qtek,sagem,samsung,sendo,sewon,sharp,siemens,sonim,sony,sony ericsson,spice,t-mobile,tel.me.,telit,thuraya,toshiba,unnecto,vertu,verykool,vivo,vk mobile,vodafone,wiko,wnd,xcute,xiaomi,xolo,yezz,yota,yu,zte";
+	public static final Set<String> manufacturersSet = Arrays.asList(manufacturers.split(",")).stream().collect(Collectors.toSet());
 	public static final String manufacturerValueRegex = ".*";
 	public static final String manufacturerKeyRegex = "(μάρκα|μαρκα|κατασκευαστής|κατασκευαστης)";
 	private static Pattern manufacturerValuePattern = Pattern.compile(manufacturerValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
@@ -23,8 +26,8 @@ public class SchemaMatcher {
 	private static Pattern screenResolutionValuePattern = Pattern.compile(screenResolutionValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern screenResolutionKeyPattern = Pattern.compile(screenResolutionKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
-	public static final String ramValueRegex = "(\\d+)(\\.){0,1}(\\d*)";
-	public static final String ramKeyRegex = "(RAM)";
+	public static final String ramValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}((GB)|(MB)|(GB RAM)){0,1}";
+	public static final String ramKeyRegex = "(RAM|μνήμη|μνημη)";
 	private static Pattern ramValuePattern = Pattern.compile(ramValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern ramKeyPattern = Pattern.compile(ramKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
@@ -96,12 +99,16 @@ public class SchemaMatcher {
 			return product.getManufacturer().toLowerCase();
 		}
 		List<String> possibleValues = findPossibeAttributeExactMatch(product, manufacturerKeyPattern, manufacturerValuePattern);
-		if (possibleValues.isEmpty()){
-//			System.err.println("Did not found screen resolution property for Product with name: " + product.getName() + " and url: " + product.getUrl());
-			validations.add("Did not find Manufacturer");
-			return "";
+		if (!possibleValues.isEmpty()){
+			return possibleValues.get(0).trim().toLowerCase();
 		}
-		return possibleValues.get(0).trim().toLowerCase();
+		
+		Optional<String> manFromNameOpt = Arrays.asList(product.getName().toLowerCase().split("\\s")).stream().filter(manufacturersSet::contains).findFirst();
+		if (manFromNameOpt.isPresent())
+			return manFromNameOpt.get().toLowerCase();
+		
+		validations.add("Did not find Manufacturer");
+		return "";
 	}
 	private String findScreenResolution(Product product){
 		List<String> possibleValues = findPossibleAttributesFirstMatch(product, screenResolutionKeyPattern, screenResolutionValuePattern);
@@ -130,24 +137,31 @@ public class SchemaMatcher {
 	}
 	
 	private Double findRam(Product product){
-		List<String> possibleValues = findPossibleAttributesFirstMatch(product, ramKeyPattern, ramValuePattern);
+		List<String> possibleValues = findPossibleAttributesLastMatch(product, ramKeyPattern, ramValuePattern);
 			
 		if (possibleValues.isEmpty()){
-			//System.err.println("Did not found ram property for Product with name: " + product.getName() + " and url: " + product.getUrl());
 			validations.add("Did not find RAM");
 			return -1.0d;
 		}
 		if (possibleValues.size() > 1){
-			//System.err.println("Found more than one ram property for Product with name: " + product.getName() + " and url: " + product.getUrl() + " values " + possibleValues.toString());
 			validations.add("Found Multiple RAM");
 		}
+		return possibleValues
+				.stream()
+				.map(val -> val.replaceAll("[^\\d.]", "").trim())
+				.map(Double::parseDouble)
+				.map(ram -> ram>257.0d?ram/1024d:ram)
+				.sorted()
+				.findFirst()
+				.orElse(-1.0d);
+		/*possibleValues = possibleValues.stream().map(val -> val.replaceAll("[^\\d.]", "").trim()).collect(Collectors.toList());
 		try{
-			return Double.valueOf(possibleValues.get(0).replaceAll("[^\\d.]", "").trim());
+			return Double.valueOf(possibleValues.get(0));
+			
 		} catch (NumberFormatException e) {
-			//System.err.println("Cannot parse (as Integer) ram property for Product with name: " + product.getName() + " and url: " + product.getUrl() + " values " + possibleValues.toString());
 			validations.add("Parse RAM failed: " + possibleValues.get(0));
 			return -1.0d;
-		}
+		}*/
 	}
 	
 	private Double findScreenSize(Product product){
@@ -221,16 +235,22 @@ public class SchemaMatcher {
 	private String findOperatingSystem(Product product){
 		List<String> possibleValues = findPossibleAttributesFirstMatch(product, operatingSystemKeyPattern, operatingSystemValuePattern);
 		
-		if (possibleValues.isEmpty()){
-			//System.err.println("Did not found operating system property for Product with name: " + product.getName() + " and url: " + product.getUrl());
-			validations.add("Did not find Operating System");
-			return "";
+		if (!possibleValues.isEmpty()){
+			return possibleValues.get(0).trim().toLowerCase().replaceAll("apple", "ios");
+		
 		}
-		if (possibleValues.size() > 1){
-			//System.err.println("Found more than one operating system property for Product with name: " + product.getName() + " and url: " + product.getUrl() + " values " + possibleValues.toString());
-			validations.add("Found Multiple Operating System");
+		
+		Optional<String> osOpt = Arrays.asList(product.getName().split("\\s")).stream()
+				.filter(tok -> "apple".equalsIgnoreCase(tok) || "ios".equalsIgnoreCase(tok) || "iphone".equalsIgnoreCase(tok) || "android".equalsIgnoreCase(tok))
+				.findFirst();
+		if (osOpt.isPresent()){
+			return osOpt.get().toLowerCase().replaceAll("apple", "ios");
 		}
-		return possibleValues.get(0).trim().replaceAll("(?i)apple", "ios").toLowerCase();
+		
+		
+		validations.add("Did not find Operating System");
+		return "";
+		
 	}
 	
 	private Integer findBattery(Product product){
@@ -295,8 +315,8 @@ public class SchemaMatcher {
 				.filter(key-> keyPattern.matcher(key).matches())
 				.map(key -> product.getAttributes().get(key))
 				.map(value -> getFirstMatch(valuePattern.matcher(value)))
-				.filter(matchedValueOpt -> matchedValueOpt.isPresent())
-				.map(matchedValueOpt -> matchedValueOpt.get())
+				.filter(Optional::isPresent)
+				.map(Optional::get)
 				.collect(Collectors.toList());
 	}
 	private List<String> findPossibleAttributesFirstMatch(Product product, Pattern keyPatter, Pattern valuePattern){
@@ -306,8 +326,8 @@ public class SchemaMatcher {
 				.filter(key-> keyPatter.matcher(key).find())
 				.map(key -> product.getAttributes().get(key))
 				.map(value -> getFirstMatch(valuePattern.matcher(value)))
-				.filter(matchedValueOpt -> matchedValueOpt.isPresent())
-				.map(matchedValueOpt -> matchedValueOpt.get())
+				.filter(Optional::isPresent)
+				.map(Optional::get)
 				.collect(Collectors.toList());
 	}
 	private List<String> findPossibleAttributesLastMatch(Product product, Pattern keyPatter, Pattern valuePattern){
@@ -317,8 +337,8 @@ public class SchemaMatcher {
 				.filter(key-> keyPatter.matcher(key).find())
 				.map(key -> product.getAttributes().get(key))
 				.map(value -> getLastMatch(valuePattern.matcher(value)))
-				.filter(matchedValueOpt -> matchedValueOpt.isPresent())
-				.map(matchedValueOpt -> matchedValueOpt.get())
+				.filter(Optional::isPresent)
+				.map(Optional::get)
 				.collect(Collectors.toList());
 	}
 	private Optional<String> getFirstMatch(Matcher matcher){

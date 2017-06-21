@@ -2,20 +2,9 @@ package gr.aueb.mscis.productCrawlerServer.stringSimilarity;
 
 import org.junit.Test;
 
-import info.debatty.java.stringsimilarity.CharacterSubstitutionInterface;
 import info.debatty.java.stringsimilarity.Cosine;
-import info.debatty.java.stringsimilarity.Damerau;
 import info.debatty.java.stringsimilarity.Jaccard;
-import info.debatty.java.stringsimilarity.JaroWinkler;
-import info.debatty.java.stringsimilarity.Levenshtein;
-import info.debatty.java.stringsimilarity.LongestCommonSubsequence;
-import info.debatty.java.stringsimilarity.NGram;
-import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-import info.debatty.java.stringsimilarity.OptimalStringAlignment;
-import info.debatty.java.stringsimilarity.QGram;
 import info.debatty.java.stringsimilarity.SorensenDice;
-import info.debatty.java.stringsimilarity.WeightedLevenshtein;
-import info.debatty.java.stringsimilarity.experimental.Sift4;
 
 public class StringSimilarityTest {
 	String product_title_1 = "samsung galaxy s7 edge";

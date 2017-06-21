@@ -50,6 +50,7 @@ public class ProductRequestHandler {
 		logger.info("Entity Resolution");
 		List<ProductSchema> filteredProducts = productSchemaStream.collect(Collectors.toList());
 		logger.info("Valid product: " + filteredProducts.size());
+		
 		List<Set<ProductSchema>> lists =
 			filteredProducts
 			.stream()

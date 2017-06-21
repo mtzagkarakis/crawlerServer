@@ -143,7 +143,7 @@ public class ProductSchema{
 		
 	}
 	public boolean isValid(){
-		System.out.println(this);
+		//System.out.println(this);
 		if (name.length() == 0 
 				||
 				manufacturer.length() == 0
@@ -213,21 +213,21 @@ public class ProductSchema{
 			return false;
 		if(pr.getBatteryTo() != null && pr.getBatteryTo() < this.batteryInMamp)
 			return false;
-		
+				
 		if(pr.getWeightFrom() != null && pr.getWeightFrom() > this.weight)
 			return false;
 		if(pr.getWeightTo() != null && pr.getWeightTo() < this.weight)
 			return false;
 		
-		if (pr.isAndroid() && this.manufacturer.equalsIgnoreCase("android"))
+		if (pr.isAndroid() && this.operatingSystem.equalsIgnoreCase("android"))
 			return true;
-		if (pr.isIOS() && this.manufacturer.equalsIgnoreCase("ios"))
+		if (pr.isIOS() && this.operatingSystem.equalsIgnoreCase("ios"))
 			return true;
-		if (pr.isWindows() && this.manufacturer.equalsIgnoreCase("windows"))
+		if (pr.isWindows() && this.operatingSystem.equalsIgnoreCase("windows"))
 			return true;
-		if (pr.isOther() && this.manufacturer.length() > 0)
+		if (pr.isOther() && this.operatingSystem.length() > 0)
 			return true;
-		
+
 		return true;
 	}
 	public Product getProduct(){
