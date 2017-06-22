@@ -43,13 +43,13 @@ public class SourceRecord implements BeanValidator<SourceRecord>{
 	private String encoding;
 	
 	@Column(name="pagination_selector")
-	@NotNull
-	@Size(min=1, max=250)
+	//@NotNull
+	//@Size(min=1, max=250)
 	private String paginationSelectorQuery;
 	
 	@Column(name="pagination_param")
-	@NotNull
-	@Size(min=1, max=250)
+	//@NotNull
+	//@Size(min=1, max=250)
 	private String paginationUrlParameter;
 	
 	@Column(name="pagination_step")

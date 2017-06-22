@@ -142,7 +142,7 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	public boolean isValid(){
+	private boolean isValid(){
 		System.out.println(this);
 		if (name.length() == 0 
 				||
@@ -174,14 +174,15 @@ public class ProductSchema{
 		//manufacturer=, network=, screesizeFrom=4, screensizeTo=6, ramFrom=2, ramTo=4, 
 		//storageFrom=4, storageTo=16, cameraFrom=8, cameraTo=12, weightFrom=150, weightTo=210, 
 		//batteryFrom=2500, batteryTo=3000, isAndroid=false, isIOS=false, isWindows=false, isOther=false, priceFrom=null, priceTo=null]
-		if (pr.getSearchString() != null && !ssc.isSearchMatch(name, pr.getSearchString().toLowerCase(), threshold))
+		System.out.println(this.toString());
+		if (name.length() > 0 && pr.getSearchString() != null && !ssc.isSearchMatch(name, pr.getSearchString().toLowerCase(), threshold))
 			return false;
 		
-		if (pr.getScreenResolution() != null && !pr.getScreenResolution().equalsIgnoreCase(this.screenResolution))
+		if (screenResolution.length() > 0 && pr.getScreenResolution() != null && !pr.getScreenResolution().equalsIgnoreCase(this.screenResolution))
 			return false;
-		if (pr.getManufacturer() != null && !pr.getManufacturer().equalsIgnoreCase(this.manufacturer))
+		if (manufacturer.length() > 0 && pr.getManufacturer() != null && !pr.getManufacturer().equalsIgnoreCase(this.manufacturer))
 			return false;
-		if (pr.getNetwork() != null && !pr.getNetwork().equalsIgnoreCase(this.network))
+		if (network.length() > 0 && pr.getNetwork() != null && !pr.getNetwork().equalsIgnoreCase(this.network))
 			return false;
 		
 		if(pr.getPriceFrom() != null && pr.getPriceFrom().doubleValue() > this.price)

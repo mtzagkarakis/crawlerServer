@@ -43,7 +43,7 @@ public class DocumentSelectorCreator {
 		return documents.map(this::paginationPageForDocument).filter(Objects::nonNull);//.collect(Collectors.toList());
 	} 
 	private DocumentMetaWithSelector<PaginationSelector> paginationPageForDocument(DocumentMeta document){
-		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrl().contains(source.getName())).findAny();
+		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrlAsString().contains(source.getName())).findAny();
 		if (sourceOpt.isPresent())
 			return new DocumentMetaWithSelector<>(document, sourceOpt.get().getPaginationSelector());
 		else{
@@ -58,7 +58,7 @@ public class DocumentSelectorCreator {
 		return documents.map(this::productUrlPageFromDocuments).filter(Objects::nonNull);
 	}
 	private DocumentMetaWithSelector<ProductURLFromPaginationSelector> productUrlPageFromDocuments(DocumentMeta document){
-		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrl().contains(source.getName())).findAny();
+		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrlAsString().contains(source.getName())).findAny();
 		if (sourceOpt.isPresent())
 			return new DocumentMetaWithSelector<>(document, sourceOpt.get().getProductURLFromPaginationSelector());
 		else{
@@ -73,7 +73,7 @@ public class DocumentSelectorCreator {
 		return documents.map(this::productFromDocuments).filter(Objects::nonNull);
 	}
 	private DocumentMetaWithSelector<ProductSelector> productFromDocuments(DocumentMeta document){
-		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrl().contains(source.getName())).findAny();
+		Optional<SourceRecord> sourceOpt = sources.stream().filter(source-> document.getUrlAsString().contains(source.getName())).findAny();
 		if (sourceOpt.isPresent())
 			return new DocumentMetaWithSelector<>(document, sourceOpt.get().getProductSelector());
 		else {

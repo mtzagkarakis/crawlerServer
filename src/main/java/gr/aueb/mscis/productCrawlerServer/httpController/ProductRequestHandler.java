@@ -41,7 +41,6 @@ public class ProductRequestHandler {
 		Stream<ProductSchema> productSchemaStream = products
 				.stream()
 				.map(pr->schemaMatcher.convert(pr))
-				.filter(ProductSchema::isValid)
 				.filter(ps -> ps.matchProductRequestCriteria(sc, productRequest, 0.8d));//basically is doing search with the name attribute
 		
 		//entity resolution

@@ -1,5 +1,7 @@
 package gr.aueb.mscis.productCrawlerServer.parsers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 
 import org.jsoup.Jsoup;
@@ -13,6 +15,15 @@ import gr.aueb.mscis.productCrawlerServer.crawler.parser.exceptions.CannotParseD
 import gr.aueb.mscis.productCrawlerServer.utils.FileUtils;
 
 public class TokitinoProductParser {
+	private URL getURL(){
+		try {
+			return new URL("http://www.google.com");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@Test
 	public void parseProductPageTest() throws CannotParseDocumentException{	
 		Document doc = Jsoup.parse(FileUtils.fileToString("testFiles/tokinito/tokinito_product_page.html").get());
@@ -24,7 +35,7 @@ public class TokitinoProductParser {
 				.setProductPriceSelector(".regular-price .price", Locale.FRANCE)
 				.setProductManufacturerSelector("")
 				.setProductImageSelector("#yt_cloudzoom");
-		Product product = (new GenericParser()).extractProductFromDocument(doc, "url", ps);
+		Product product = (new GenericParser()).extractProductFromDocument(doc, getURL(), ps);
 		
 		System.out.println(product);
 	}

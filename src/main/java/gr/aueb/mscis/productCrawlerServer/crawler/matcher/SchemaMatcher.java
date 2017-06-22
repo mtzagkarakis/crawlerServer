@@ -37,13 +37,13 @@ public class SchemaMatcher {
 	private static Pattern ramValuePattern = Pattern.compile(ramValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern ramKeyPattern = Pattern.compile(ramKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
-	public static final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"){1}|(inches){1})";
+	public static final String screenSizeValueRegex = "(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"){1}|(”){1}|(inches){1})";
 	public static final String screenSizeKeyRegex = "(μέγεθος οθόνης|μεγεθος οθονης|οθόνη|οθονη)";
 	private static Pattern screenSizeValuePattern = Pattern.compile(screenSizeValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern screenSizeKeyPattern = Pattern.compile(screenSizeKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
 	public static final String storageValueRegex = "(\\d+)(\\.){0,1}(\\d){0,2}(\\s){0,1}((GB)|(MB))";
-	public static final String storageKeyRegex = "(Αποθηκευτικός Χώρος|Εσωτερική μνήμη|Αποθηκευτικος Χωρος|Εσωτερικη μνημη|χωρητικότητα)";
+	public static final String storageKeyRegex = "(Αποθηκευτικός Χώρος|Αποθ. Χώρος|Εσωτερική μνήμη|Αποθηκευτικος Χωρος|Εσωτερικη μνημη|χωρητικότητα)";
 	private static Pattern storageValuePattern = Pattern.compile(storageValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern storageKeyPattern = Pattern.compile(storageKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
@@ -53,7 +53,7 @@ public class SchemaMatcher {
 	private static Pattern cameraResolutionKeyPattern = Pattern.compile(cameraResolutionKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
 	public static final String operatingSystemValueRegex = "(android|ios|apple|windows|blackberry)";
-	public static final String operatingSystemKeyRegex = "(Λειτουργικό|λειτουργικο)";
+	public static final String operatingSystemKeyRegex = "(Λειτουργικό|λειτουργικο|Λειτ. Σύστημα)";
 	private static Pattern operatingSystemValuePattern = Pattern.compile(operatingSystemValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern operatingSystemKeyPattern = Pattern.compile(operatingSystemKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
@@ -63,7 +63,7 @@ public class SchemaMatcher {
 	private static Pattern batteryKeyPattern = Pattern.compile(batteryKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	
 	public static final String networkValueRegex = "(GSM|GPRS|EDGE|HSDPA|HSUPA|HSPA|LTE|2g|3g|4g\\+|4g)";
-	public static final String networkKeyRegex = "(Δίκτυο|δικτυο)|(Mobile Internet)";
+	public static final String networkKeyRegex = "(Δίκτυ|δικτυ)|(Mobile Internet)";
 	private static Pattern networkValuePattern = Pattern.compile(networkValueRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	private static Pattern networkKeyPattern = Pattern.compile(networkKeyRegex, Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE);
 	

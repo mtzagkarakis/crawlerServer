@@ -49,7 +49,7 @@ public class ProductFetcher {
 	private DocumentMeta downloadDoc(UrlWithContentEncoding pUrl){
 		try{
 			logger.info("Downloading document with url: " + pUrl.getUrlAsString());
-			return new DocumentMeta(docDownloader.downloadDocument(pUrl.getUrlAsString(), pUrl.getEncoding()), pUrl.getUrlAsString(), pUrl.getEncoding());
+			return new DocumentMeta(docDownloader.downloadDocument(pUrl.getUrlAsString(), pUrl.getEncoding()), pUrl.getUrl(), pUrl.getEncoding());
 		} catch (CannotDownloadDocumentException | CannotParseDocumentException e) {
 			logger.warn("Failed to fetch product page with url " + pUrl.getUrl().toString() + " with message " + e.getMessage(), e);
 			return null;
@@ -59,7 +59,7 @@ public class ProductFetcher {
 		return documents
 				.map(doc-> {
 					try {
-						List<ProductPageUrl> productPageList = parser.extractCategoryPageUrlsFromCategoryPageDocument(doc.getDocument(), doc.getData() );
+						List<ProductPageUrl> productPageList = parser.extractCategoryPageUrlsFromCategoryPageDocument(doc.getDocument(), doc.getUrl(), doc.getData() );
 						return 
 							productPageList.stream().map(ppUrl->new UrlWithContentEncoding(ppUrl.getUrl(), doc.getEncoding())).collect(Collectors.toList());
 					} catch (CannotParseDocumentException e) {
@@ -76,7 +76,7 @@ public class ProductFetcher {
 				.map(doc -> {
 					List<UrlWithContentEncoding> urlsWithEncoding = new ArrayList<>(); 
 					try {						
-						return parser.extractProductUrlFromCategoryPageDocument(doc.getDocument(), doc.getData())
+						return parser.extractProductUrlFromCategoryPageDocument(doc.getDocument(), doc.getUrl(), doc.getData())
 								.stream()
 								.map(pUrl->new UrlWithContentEncoding(pUrl.getUrl(), doc.getEncoding()))
 								.collect(Collectors.toList());
@@ -94,7 +94,7 @@ public class ProductFetcher {
 							try {
 								return parser.extractProductFromDocument(pDoc.getDocument(), pDoc.getUrl(), pDoc.getData());
 							} catch (CannotParseDocumentException e) {
-								logger.warn("Cannot Extract product info from document with url " + pDoc.getUrl() + " reason: ", e);
+								logger.warn("Cannot Extract product info from document with url " + pDoc.getUrl() + " reason: " + e.getMessage(), e);
 								return null;
 							}
 						})

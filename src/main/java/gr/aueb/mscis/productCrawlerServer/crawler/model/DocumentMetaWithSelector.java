@@ -1,5 +1,7 @@
 package gr.aueb.mscis.productCrawlerServer.crawler.model;
 
+import java.net.URL;
+
 import org.jsoup.nodes.Document;
 
 import gr.aueb.mscis.productCrawlerServer.crawler.model.selectors.AbstractSelector;
@@ -18,8 +20,11 @@ public class DocumentMetaWithSelector<T extends AbstractSelector> {
 	public Document getDocument(){
 		return documentMeta.getDocument();
 	}
-	public String getUrl(){
+	public URL getUrl(){
 		return documentMeta.getUrl();
+	}
+	public String getUrlAsString(){
+		return documentMeta.getUrl().toString();
 	}
 	public String getEncoding(){
 		return documentMeta.getEncoding();

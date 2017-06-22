@@ -1,5 +1,6 @@
 package gr.aueb.mscis.productCrawlerServer.parsers;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +24,19 @@ import gr.aueb.mscis.productCrawlerServer.utils.FileUtils;
 
 public class PlaisioCategoryParserTest {
 	private GenericParser genericParser = new GenericParser();
+	private URL getURL(){
+		try {
+			return new URL("http://www.google.com");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@Test
 	public void parsePagesTest() throws CannotParseDocumentException{
 		Document document = genericParser.parseDocumentFromString(FileUtils.fileToString("testFiles/plaisio/product_smartphones_category_page.html").get());
-		List<ProductPageUrl> productPages = genericParser.extractCategoryPageUrlsFromCategoryPageDocument(document, new PaginationSelector("#ctl00_BaseLayoutContentArea_pagingBottom_divPager a", "page", 1));
+		List<ProductPageUrl> productPages = genericParser.extractCategoryPageUrlsFromCategoryPageDocument(document, getURL(),new PaginationSelector("#ctl00_BaseLayoutContentArea_pagingBottom_divPager a", "page", 1));
 		
 		Assert.assertEquals(13, productPages.size());
 		
@@ -49,7 +59,7 @@ public class PlaisioCategoryParserTest {
 	@Test
 	public void parseProductUrlsTest() throws CannotParseDocumentException{
 		Document document = genericParser.parseDocumentFromString(FileUtils.fileToString("testFiles/plaisio/product_smartphones_category_page.html").get());
-		List<ProductUrl> productUrls = genericParser.extractProductUrlFromCategoryPageDocument(document, new ProductURLFromPaginationSelector("div.productTopWrap div.productDetailsWrap div.productTitleDescrWrap div.productTitle a"));
+		List<ProductUrl> productUrls = genericParser.extractProductUrlFromCategoryPageDocument(document, getURL(), new ProductURLFromPaginationSelector("div.productTopWrap div.productDetailsWrap div.productTitleDescrWrap div.productTitle a"));
 		
 		Assert.assertEquals(20, productUrls.size());
 		Set<String> collectedUrlsSet = productUrls.stream().map(ProductUrl::getUrl).map(URL::toString).collect(Collectors.toCollection(HashSet::new));

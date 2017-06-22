@@ -1,5 +1,7 @@
 package gr.aueb.mscis.productCrawlerServer.parsers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 
 import org.jsoup.Jsoup;
@@ -15,6 +17,16 @@ import gr.aueb.mscis.productCrawlerServer.utils.FileUtils;
 
 
 public class PlaisioProductParserTest {
+	private URL getURL(){
+		try {
+			return new URL("http://www.google.com");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	ProductSelector ps = new ProductSelector()
 			.setProductAttributeKeySelector("li.characteristicsItem span.characteristicLabel")
 			.setProductAttributeValueSelector("li.characteristicsItem span.characteristicValue")
@@ -27,7 +39,7 @@ public class PlaisioProductParserTest {
 	public void parseProductPageTest() throws CannotParseDocumentException{	
 		Document doc = Jsoup.parse(FileUtils.fileToString("testFiles/plaisio/plaisio_product_page.html").get());
 		
-		Product product = (new GenericParser()).extractProductFromDocument(doc, "url", ps);
+		Product product = (new GenericParser()).extractProductFromDocument(doc, getURL(), ps);
 		
 		Assert.assertEquals("Samsung Galaxy S8+ 4G+ Smartphone Μαύρο", product.getName());
 		Assert.assertEquals("929", product.getPrice());
@@ -45,7 +57,7 @@ public class PlaisioProductParserTest {
 	public void parseProductPage1Test() throws CannotParseDocumentException{	
 		Document doc = Jsoup.parse(FileUtils.fileToString("testFiles/plaisio/plaisio_product_page1.html").get());
 		
-		Product product = (new GenericParser()).extractProductFromDocument(doc, "url", ps);
+		Product product = (new GenericParser()).extractProductFromDocument(doc, getURL(), ps);
 		
 		Assert.assertEquals("Apple iPhone 7 Plus 128GB 4G+ Smartphone Jet Black", product.getName());
 		Assert.assertEquals("1079", product.getPrice());

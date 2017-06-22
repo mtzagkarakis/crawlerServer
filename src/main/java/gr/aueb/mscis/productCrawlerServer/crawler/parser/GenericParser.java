@@ -1,6 +1,8 @@
 package gr.aueb.mscis.productCrawlerServer.crawler.parser;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,9 +26,22 @@ import gr.aueb.mscis.productCrawlerServer.crawler.parser.utils.ParserUtils;
 import gr.aueb.mscis.productCrawlerServer.utils.StringUtils;
 
 public class GenericParser extends GenericHTMLDocumentParser{
-	public List<ProductPageUrl> extractCategoryPageUrlsFromCategoryPageDocument(Document document, PaginationSelector paginationSelector) throws CannotParseDocumentException {
+	private boolean isRelativeURL(URL base, String test){
+		if (test.startsWith(base.getProtocol()) || test.startsWith(base.getHost()) )
+			return false;
+		return true;
+	}
+	public List<ProductPageUrl> extractCategoryPageUrlsFromCategoryPageDocument(Document document, URL baseUrl, PaginationSelector paginationSelector) throws CannotParseDocumentException {
 		if (document == null){
 			throw new CannotParseDocumentException("Document is null");
+		}
+		if (baseUrl == null){
+			throw new CannotParseDocumentException("BaseUrl is null");
+		}
+		if (StringUtils.stringIsEmptyOrNull(paginationSelector.getPaginationUrlParameter())
+				||
+				StringUtils.stringIsEmptyOrNull(paginationSelector.getPaginatorSelector())){
+			return ProductPageUrl.fromStringList(Arrays.asList(baseUrl.toString()));
 		}
 		List<String> allPagesUrlString = new ArrayList<>();
 		
@@ -36,6 +51,12 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					.select(paginationSelector.getPaginatorSelector())
 					.stream()
 					.map(el->el.attr("href"))
+					.map(el -> {
+						if (isRelativeURL(baseUrl, el)){
+							el = baseUrl.getProtocol() + "://" + baseUrl.getHost() + (el.startsWith("/")?el:"/"+el);
+						}
+						return el;
+					})
 					.filter(el -> UrlValidator.getInstance().isValid(el))
 					.collect(Collectors.toSet());
 			
@@ -73,11 +94,13 @@ public class GenericParser extends GenericHTMLDocumentParser{
 		return ProductPageUrl.fromStringList(allPagesUrlString);
 	}
 	
-	public List<ProductUrl> extractProductUrlFromCategoryPageDocument(Document document, ProductURLFromPaginationSelector productItemSelector) throws CannotParseDocumentException{
+	public List<ProductUrl> extractProductUrlFromCategoryPageDocument(Document document, URL baseUrl, ProductURLFromPaginationSelector productItemSelector) throws CannotParseDocumentException{
 		if (document == null){
 			throw new CannotParseDocumentException("Document is null");
 		}
-		
+		if (baseUrl == null){
+			throw new CannotParseDocumentException("BaseUrl is null");
+		}
 		List<String> productUrlsStrings = new ArrayList<>();
 		try{
 			productUrlsStrings =
@@ -85,8 +108,17 @@ public class GenericParser extends GenericHTMLDocumentParser{
 				.select(productItemSelector.getSelector())
 				.stream()
 				.map(el->el.attr("href"))
+				.map(el -> {
+					if (isRelativeURL(baseUrl, el)){
+						el = baseUrl.getProtocol() + "://" + baseUrl.getHost() + (el.startsWith("/")?el:"/"+el);
+					}
+					return el;
+				})
+				.filter(el -> UrlValidator.getInstance().isValid(el))
 				.distinct()
 				.collect(Collectors.toList());
+//			System.out.println("selector " + productItemSelector.getSelector());
+//			System.out.println("Extracted " + productUrlsStrings.size() );
 		} catch (Exception e) {
 			throw new CannotParseDocumentException("Cannot extract element " + e.getMessage(), e);
 		}
@@ -94,7 +126,7 @@ public class GenericParser extends GenericHTMLDocumentParser{
 		return ProductUrl.fromStringList(productUrlsStrings);
 	}
 	
-	public Product extractProductFromDocument(Document document, String productUrl, ProductSelector productSelector) throws CannotParseDocumentException{
+	public Product extractProductFromDocument(Document document, URL productUrl, ProductSelector productSelector) throws CannotParseDocumentException{
 		Product.Builder productBuilder = new Product.Builder();
 		try{	
 			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductAttributeKeySelector()) 
@@ -117,7 +149,7 @@ public class GenericParser extends GenericHTMLDocumentParser{
 								.collect(Collectors.toList());
 				
 				if (attributesKeys.size() != attributesValues.size())
-					throw new CannotParseDocumentException("Attribute keys and attribute values lists does not have the same length in product Url: " + productUrl);
+					throw new CannotParseDocumentException("Attribute keys " + attributesKeys.size() + " and attribute values " + attributesValues.size() + " lists does not have the same length in product Url: " + productUrl);
 					
 				Map<String, String> attributes = new HashMap<>();
 				for (int i=0; i<attributesKeys.size(); i++){
@@ -164,7 +196,7 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					}
 				}
 			}
-			return productBuilder.setUrl(productUrl).build();
+			return productBuilder.setUrl(productUrl.toString()).build();
 		} catch (Exception e) {
 			throw new CannotParseDocumentException("Cannot extract product from Page", e);
 		}
