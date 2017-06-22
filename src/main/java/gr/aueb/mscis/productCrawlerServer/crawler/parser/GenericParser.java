@@ -1,8 +1,6 @@
 package gr.aueb.mscis.productCrawlerServer.crawler.parser;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,26 +39,22 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					.filter(el -> UrlValidator.getInstance().isValid(el))
 					.collect(Collectors.toSet());
 			
-			
 			if (paginationUrls.size() == 1){
 				allPagesUrlString.add(paginationUrls.iterator().next());
 			} else {
 					List<String> paginationUrlsSortedDesc =
 						paginationUrls
 						.stream()
-						.sorted(new Comparator<String>() {
-							@Override
-							public int compare(String url0, String url1) {
-								Integer off0 = ParserUtils.getUrlNumberParameter(url0, paginationSelector.getPaginationUrlParameter()).orElse(-1);
-								Integer off1 = ParserUtils.getUrlNumberParameter(url1, paginationSelector.getPaginationUrlParameter()).orElse(-1);
-								return off1.compareTo(off0);
-							}
-						})
+						.sorted((url0, url1)->
+							ParserUtils.getUrlNumberParameter(url1, paginationSelector.getPaginationUrlParameter()).orElse(-1)
+							.compareTo(ParserUtils.getUrlNumberParameter(url0, paginationSelector.getPaginationUrlParameter()).orElse(-1))
+						)
 						.collect(Collectors.toList());
+						
 					
 					String lastPageUrl = paginationUrlsSortedDesc.get(0);
 					String firstPageUrl = paginationUrlsSortedDesc.get(paginationUrlsSortedDesc.size()-1);
-
+					
 					int greaterOffset = ParserUtils.getUrlNumberParameter(lastPageUrl, paginationSelector.getPaginationUrlParameter()).orElse(-1);
 					int smallestOffset = ParserUtils.getUrlNumberParameter(firstPageUrl, paginationSelector.getPaginationUrlParameter()).orElse(-1);
 					
@@ -91,10 +85,8 @@ public class GenericParser extends GenericHTMLDocumentParser{
 				.select(productItemSelector.getSelector())
 				.stream()
 				.map(el->el.attr("href"))
-				.collect(Collectors.toSet())
-				.stream()
+				.distinct()
 				.collect(Collectors.toList());
-			
 		} catch (Exception e) {
 			throw new CannotParseDocumentException("Cannot extract element " + e.getMessage(), e);
 		}
@@ -105,8 +97,10 @@ public class GenericParser extends GenericHTMLDocumentParser{
 	public Product extractProductFromDocument(Document document, String productUrl, ProductSelector productSelector) throws CannotParseDocumentException{
 		Product.Builder productBuilder = new Product.Builder();
 		try{	
-			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductAttributeKeySelector()) == false &&
-					StringUtils.stringIsEmptyOrNull(productSelector.getProductAttributeValueSelector()) == false){
+			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductAttributeKeySelector()) 
+					&&
+				!StringUtils.stringIsEmptyOrNull(productSelector.getProductAttributeValueSelector())){
+				
 				List<String> attributesKeys = 
 						document
 							.select(productSelector.getProductAttributeKeySelector())
@@ -127,37 +121,37 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					
 				Map<String, String> attributes = new HashMap<>();
 				for (int i=0; i<attributesKeys.size(); i++){
-					if (attributes.containsKey(attributesKeys.get(i)) == false){
+					if (!attributes.containsKey(attributesKeys.get(i))){
 						attributes.put(attributesKeys.get(i), attributesValues.get(i));
 					}
 				}	
 				productBuilder.setAttributes(attributes);
 			}
 			
-			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductManufacturerSelector()) == false){
+			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductManufacturerSelector())){
 				Optional<Element> manufacturerElementOpt = document.select(productSelector.getProductManufacturerSelector()).stream().findFirst();
 				if (manufacturerElementOpt.isPresent())
 					productBuilder.setManufacturer(manufacturerElementOpt.get().text().trim());
 			}
-			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductNameSelector()) == false){
+			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductNameSelector())){
 				Optional<Element> nameElementOpt = document.select(productSelector.getProductNameSelector()).stream().findFirst();
 				if (nameElementOpt.isPresent())
 					productBuilder.setName(nameElementOpt.get().text().trim());	
 			}
-			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductPriceSelector())== false){
+			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductPriceSelector())){
 				Optional<Element> priceElementOpt = document.select(productSelector.getProductPriceSelector()).stream().findFirst();
 				if (priceElementOpt.isPresent()){
 					String priceStr = priceElementOpt.get().text();
-					priceStr = priceStr.replace("€", "");
-					priceStr = priceStr.replace("$", "");
-					if (productSelector.getProductPriceLocale() != Locale.US){
+					if (!productSelector.getProductPriceLocale().equals(Locale.US)){
 						priceStr = priceStr.replace(".", "");
+						priceStr = priceStr.replace(",", ".");
 					}
-					productBuilder.setPrice(NumberFormat.getNumberInstance(productSelector.getProductPriceLocale()).parse(priceStr.trim()).doubleValue());
+					priceStr = priceStr.replaceAll("[^\\d.]", "");
+					productBuilder.setPrice(priceStr);
 				}
 			}
 			
-			if (StringUtils.stringIsEmptyOrNull(productSelector.getProductImageSelector()) == false){
+			if (!StringUtils.stringIsEmptyOrNull(productSelector.getProductImageSelector())){
 				
 				Optional<Element> imageElement = document.select(productSelector.getProductImageSelector()).stream().findAny();
 				if (imageElement.isPresent()){

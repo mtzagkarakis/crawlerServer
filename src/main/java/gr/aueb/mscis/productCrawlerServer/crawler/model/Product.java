@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Product {
-	private final String url, imageUrl, name, manufacturer;
-	private final Double price;
+	private final String url;
+	private final String imageUrl;
+	private final String name;
+	private final String manufacturer;
+	private final String price;
 	private final Map<String, String> attributes;
 	
 	public static final class Builder{
@@ -13,7 +16,7 @@ public class Product {
 		private String imageUrl = "";
 		private String manufacturer = "";
 		private String name = "";
-		private Double price = 0.0d;
+		private String price = "";
 		private Map<String, String> attributes = new HashMap<>();
 		public Builder setUrl(String url) {
 			this.url = url; return this;
@@ -27,7 +30,7 @@ public class Product {
 
 		public String getName() {return name;}
 
-		public Double getPrice() {return price;}
+		public String getPrice() {return price;}
 
 		public Map<String, String> getAttributes() {return attributes;}
 
@@ -40,7 +43,7 @@ public class Product {
 		public Builder setName(String name) {
 			this.name = name; return this;
 		}
-		public Builder setPrice(Double price) {
+		public Builder setPrice(String price) {
 			this.price = price; return this;
 		}
 		public Builder setAttributes(Map<String, String> attributes) {
@@ -71,7 +74,7 @@ public class Product {
 	public String getName() {
 		return name;
 	}
-	public Double getPrice() {
+	public String getPrice() {
 		return price;
 	}
 	public Map<String, String> getAttributes() {

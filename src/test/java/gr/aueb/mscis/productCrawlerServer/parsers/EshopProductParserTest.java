@@ -34,7 +34,7 @@ public class EshopProductParserTest {
 		Assert.assertEquals("ΚΙΝΗΤΟ APPLE IPHONE 7 PLUS 128GB RED SPECIAL EDITION", product.getName());
 		Assert.assertEquals("APPLE", product.getManufacturer());
 		Assert.assertEquals("http://images.e-shop.gr/images/TEL/BIG/TEL.004857.jpg", product.getImageUrl());
-		Assert.assertEquals(977.0d, product.getPrice(), 0.01d);
+		Assert.assertEquals("977.00", product.getPrice());
 		Assert.assertEquals(24, product.getAttributes().size());
 		
 		Assert.assertEquals("GSM, HSPA, LTE", product.getAttributes().get("Mobile Internet"));

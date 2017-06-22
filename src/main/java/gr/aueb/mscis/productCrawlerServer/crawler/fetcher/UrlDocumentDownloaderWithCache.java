@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -20,7 +21,8 @@ import gr.aueb.mscis.productCrawlerServer.crawler.parser.exceptions.CannotParseD
 import gr.aueb.mscis.productCrawlerServer.utils.FileUtils;
 
 public class UrlDocumentDownloaderWithCache implements IDocumentDownloader{
-	
+	private static final Logger logger = Logger.getLogger(UrlDocumentDownloaderWithCache.class.getName());
+	private static final String hashAlgorith = "MD5";
 	@Override
 	public Document downloadDocument(String urlStr, String charset)
 			throws CannotDownloadDocumentException, CannotParseDocumentException {
@@ -31,10 +33,8 @@ public class UrlDocumentDownloaderWithCache implements IDocumentDownloader{
 			return Jsoup.parse(FileUtils.fileToString(file.getPath()).orElseThrow( 
 					()->   new CannotParseDocumentException("Cannot parse document saved in cache with name " + file.getPath())   ));
 		}
-		
-		
-		BufferedReader br = null;
-		StringBuilder resultSB = new StringBuilder();
+
+		StringBuilder httpResultSB = null;
 		try {
 			URL url = new URL(urlStr);
 			URLConnection connection = url.openConnection();
@@ -42,40 +42,40 @@ public class UrlDocumentDownloaderWithCache implements IDocumentDownloader{
 			connection.setReadTimeout(2*60_000);
 			connection.setRequestProperty("Referer", "www.google.com");
 			connection.setRequestProperty("User-Agent", UserAgentFetcher.getRandomUserAgent());
-			br = new BufferedReader(new InputStreamReader(connection.getInputStream(), charset));
-			String line = "";
-			while((line = br.readLine())!= null){
-				resultSB.append(line);
-			}
+			httpResultSB = readFromStream(connection, charset);
 		} catch (IOException e) {
 			throw new CannotDownloadDocumentException(e.getMessage(), e);
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 		try{
-			Document result = Jsoup.parse(resultSB.toString(), StandardCharsets.UTF_8.toString());
+			Document result = Jsoup.parse(httpResultSB.toString(), StandardCharsets.UTF_8.toString());
 			if (md5HashOfUrlOpt.isPresent()){
 				FileUtils.writeToFile("documentCache/"+md5HashOfUrlOpt.get(), result.toString());
 			}
 			return result;
-		} catch (Throwable e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 			throw new CannotParseDocumentException("Cannot parse document from url " + urlStr, e);
 		}
 	}
-	
+	private StringBuilder readFromStream(URLConnection connection, String charset){
+		StringBuilder resultSB = new StringBuilder();
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), charset))){
+			char[] buffer = new char[1024];
+			while(br.read(buffer) != -1){
+				resultSB.append(buffer);
+			}
+		} catch (IOException e){
+			logger.warn("Exception while handling input stream from url", e);
+		}
+		return resultSB;
+	}
 	private Optional<String> createMD5ofUrl(String url){
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
+			MessageDigest md = MessageDigest.getInstance(hashAlgorith);
 			byte[] messageDigest = md.digest(url.getBytes());
 			BigInteger number = new BigInteger(1, messageDigest);
 			return Optional.ofNullable(number.toString(16));
 		} catch (NoSuchAlgorithmException e) {
+			logger.warn("Cannot hash url because algorithm " + hashAlgorith + " does not exist in this system", e);
 			return Optional.empty();
 		}
 		

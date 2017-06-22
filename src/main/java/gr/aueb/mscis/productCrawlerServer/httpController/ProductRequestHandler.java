@@ -25,13 +25,11 @@ import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductResponse;
 public class ProductRequestHandler {
 	private final static Logger logger = Logger.getLogger(ProductRequestHandler.class.getName());
 	private final ProductFetcher productFetcher;
-	private final IDocumentDownloader documentDownloader;
 	SchemaMatcher schemaMatcher = new SchemaMatcher();
 	SimilarityCalculator sc = new SimilarityCalculator();
 	
-	public ProductRequestHandler(IDocumentDownloader documentDownloader, ForkJoinPool forkJoinPool){
-		this.documentDownloader = documentDownloader; 
-		this.productFetcher = new ProductFetcher(forkJoinPool);
+	public ProductRequestHandler(IDocumentDownloader documentDownloader, ForkJoinPool forkJoinPool){ 
+		this.productFetcher = new ProductFetcher(forkJoinPool, documentDownloader);
 	}
 	public List<ProductResponse> getProductsFilteredAndNested(List<SourceRecord> sources, ProductRequest productRequest){
 		logger.info("Incoming product request: " + productRequest);
@@ -79,11 +77,11 @@ public class ProductRequestHandler {
 	}
 	public List<Product> getProductsFromAllSourcesFlat(List<SourceRecord> sources) {
 		DocumentSelectorCreator urlToSelector = new DocumentSelectorCreator(sources);
-		Stream<DocumentMeta> documents = productFetcher.downloadDocuments(documentDownloader, urlToSelector.getAllUrlsWithEncodingFromSource().stream());
+		Stream<DocumentMeta> documents = productFetcher.downloadDocuments(urlToSelector.getAllUrlsWithEncodingFromSource().stream());
 		Stream<UrlWithContentEncoding> urls = productFetcher.extractProductPagesFromMainCategoryDocument(urlToSelector.paginationPagesFromDocuments(documents));
-		documents = productFetcher.downloadDocuments(documentDownloader, urls);
+		documents = productFetcher.downloadDocuments(urls);
 		urls = productFetcher.extractProductUrlsFromProductPageDocuments(urlToSelector.productUrlPagesFromDocuments(documents));
-		documents = productFetcher.downloadDocuments(documentDownloader, urls);
+		documents = productFetcher.downloadDocuments(urls);
 		return productFetcher.extractProductFromProductDocument(urlToSelector.productsFromDocuments(documents)).collect(Collectors.toList());
 	}
 }

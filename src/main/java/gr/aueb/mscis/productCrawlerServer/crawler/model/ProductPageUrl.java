@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import gr.aueb.mscis.productCrawlerServer.crawler.parser.exceptions.CannotParseDocumentException;
+import org.apache.log4j.Logger;
 
 public class ProductPageUrl {
+	private static final Logger logger = Logger.getLogger(ProductPageUrl.class.getName());
 	private final URL url;
-	
 	public ProductPageUrl(URL url) {
 		Objects.requireNonNull(url);
 		this.url = url;
@@ -27,13 +27,13 @@ public class ProductPageUrl {
 		return "ProductPageUrl [url=" + url + "]";
 	}
 	
-	public static List<ProductPageUrl> fromStringList(List<String> urlStrList) throws CannotParseDocumentException{
+	public static List<ProductPageUrl> fromStringList(List<String> urlStrList){
 		List<ProductPageUrl> productPages = new ArrayList<>();
 		for(String urlStr: urlStrList){
 			try {
 				productPages.add(new ProductPageUrl(new URL(urlStr)));
 			} catch (MalformedURLException e) {
-				throw new CannotParseDocumentException(e.getMessage(), e);
+				logger.warn("malformedUrl: " + (urlStr.isEmpty()?"(empty)":urlStr) + " exception message: " + e.getMessage(), e);
 			}	
 		}
 		return productPages;

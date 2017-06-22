@@ -30,7 +30,7 @@ public class PlaisioProductParserTest {
 		Product product = (new GenericParser()).extractProductFromDocument(doc, "url", ps);
 		
 		Assert.assertEquals("Samsung Galaxy S8+ 4G+ Smartphone Μαύρο", product.getName());
-		Assert.assertEquals(929.0d, product.getPrice(), 0.01d);
+		Assert.assertEquals("929", product.getPrice());
 		Assert.assertEquals(34, product.getAttributes().size());
 		Assert.assertEquals("//www.plaisio-cdn.gr/ProductImages/1000x1000/2651300.JPG", product.getImageUrl());
 		Assert.assertEquals("url",  product.getUrl());
@@ -48,7 +48,7 @@ public class PlaisioProductParserTest {
 		Product product = (new GenericParser()).extractProductFromDocument(doc, "url", ps);
 		
 		Assert.assertEquals("Apple iPhone 7 Plus 128GB 4G+ Smartphone Jet Black", product.getName());
-		Assert.assertEquals(1079.0d, product.getPrice(), 0.01d);
+		Assert.assertEquals("1079", product.getPrice());
 		Assert.assertEquals(35, product.getAttributes().size());
 		Assert.assertEquals("//www.plaisio-cdn.gr/ProductImages/1000x1000/2569809.JPG", product.getImageUrl());
 		Assert.assertEquals("url",  product.getUrl());
