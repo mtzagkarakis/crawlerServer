@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -26,6 +27,7 @@ import gr.aueb.mscis.productCrawlerServer.crawler.parser.utils.ParserUtils;
 import gr.aueb.mscis.productCrawlerServer.utils.StringUtils;
 
 public class GenericParser extends GenericHTMLDocumentParser{
+	private final static Logger logger = Logger.getLogger(GenericParser.class.getName());
 	private boolean isRelativeURL(URL base, String test){
 		if (test.startsWith(base.getProtocol()) || test.startsWith(base.getHost()) )
 			return false;
@@ -66,13 +68,13 @@ public class GenericParser extends GenericHTMLDocumentParser{
 					List<String> paginationUrlsSortedDesc =
 						paginationUrls
 						.stream()
+						.filter(url -> ParserUtils.getUrlParameter(url, paginationSelector.getPaginationUrlParameter()).isPresent())
 						.sorted((url0, url1)->
 							ParserUtils.getUrlNumberParameter(url1, paginationSelector.getPaginationUrlParameter()).orElse(-1)
 							.compareTo(ParserUtils.getUrlNumberParameter(url0, paginationSelector.getPaginationUrlParameter()).orElse(-1))
 						)
 						.collect(Collectors.toList());
 						
-					
 					String lastPageUrl = paginationUrlsSortedDesc.get(0);
 					String firstPageUrl = paginationUrlsSortedDesc.get(paginationUrlsSortedDesc.size()-1);
 					
@@ -117,8 +119,7 @@ public class GenericParser extends GenericHTMLDocumentParser{
 				.filter(el -> UrlValidator.getInstance().isValid(el))
 				.distinct()
 				.collect(Collectors.toList());
-//			System.out.println("selector " + productItemSelector.getSelector());
-//			System.out.println("Extracted " + productUrlsStrings.size() );
+
 		} catch (Exception e) {
 			throw new CannotParseDocumentException("Cannot extract element " + e.getMessage(), e);
 		}
@@ -148,8 +149,11 @@ public class GenericParser extends GenericHTMLDocumentParser{
 								.map(el->el.text().trim())
 								.collect(Collectors.toList());
 				
-				if (attributesKeys.size() != attributesValues.size())
+				if (attributesKeys.size() != attributesValues.size()){
+					logger.info("attributes: " + attributesKeys);
+					logger.info("values: " + attributesValues);
 					throw new CannotParseDocumentException("Attribute keys " + attributesKeys.size() + " and attribute values " + attributesValues.size() + " lists does not have the same length in product Url: " + productUrl);
+				}
 					
 				Map<String, String> attributes = new HashMap<>();
 				for (int i=0; i<attributesKeys.size(); i++){

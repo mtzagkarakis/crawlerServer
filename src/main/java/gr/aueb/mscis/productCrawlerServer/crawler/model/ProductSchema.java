@@ -142,7 +142,7 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	/*private boolean isValid(){
+	private boolean isValid(){
 		System.out.println(this);
 		if (name.length() == 0 
 				||
@@ -168,7 +168,7 @@ public class ProductSchema{
 			return false;
 		}
 		return true;
-	}*/
+	}
 	public boolean matchProductRequestCriteria(SimilarityCalculator ssc, ProductRequest pr, double threshold){
 		//ProductRequest [searchString=samsung, screenResolution=, 
 		//manufacturer=, network=, screesizeFrom=4, screensizeTo=6, ramFrom=2, ramTo=4, 
@@ -185,39 +185,39 @@ public class ProductSchema{
 		if (network.length() > 0 && pr.getNetwork() != null && !pr.getNetwork().equalsIgnoreCase(this.network))
 			return false;
 		
-		if(pr.getPriceFrom() != null && pr.getPriceFrom().doubleValue() > this.price)
+		if(price > 0.0d && pr.getPriceFrom() != null && pr.getPriceFrom().doubleValue() > this.price)
 			return false;
-		if(pr.getPriceTo() != null && pr.getPriceTo().doubleValue() < this.price)
-			return false;
-		
-		if(pr.getScreesizeFrom() != null && pr.getScreesizeFrom() > this.screenSize)
-			return false;
-		if(pr.getScreensizeTo() != null && pr.getScreensizeTo() < this.screenSize)
+		if(price > 0.0d && pr.getPriceTo() != null && pr.getPriceTo().doubleValue() < this.price)
 			return false;
 		
-		if(pr.getRamFrom() != null && pr.getRamFrom() > this.ram)
+		if(screenSize > 0.0d && pr.getScreesizeFrom() != null && pr.getScreesizeFrom() > this.screenSize)
 			return false;
-		if(pr.getRamTo() != null && pr.getRamTo() < this.ram)
-			return false;
-		
-		if(pr.getStorageFrom() != null && pr.getStorageFrom() > this.storageInGB)
-			return false;
-		if(pr.getStorageTo() != null && pr.getStorageTo() < this.storageInGB)
+		if(screenSize > 0.0d && pr.getScreensizeTo() != null && pr.getScreensizeTo() < this.screenSize)
 			return false;
 		
-		if(pr.getCameraFrom() != null && pr.getCameraFrom() > this.cameraResolutionInMP)
+		if(ram > 0.0d && pr.getRamFrom() != null && pr.getRamFrom() > this.ram)
 			return false;
-		if(pr.getCameraTo() != null && pr.getCameraTo() < this.cameraResolutionInMP)
+		if(ram > 0.0d && pr.getRamTo() != null && pr.getRamTo() < this.ram)
 			return false;
 		
-		if(pr.getBatteryFrom() != null && pr.getBatteryFrom() > this.batteryInMamp)
+		if(storageInGB > 0.0d && pr.getStorageFrom() != null && pr.getStorageFrom() > this.storageInGB)
 			return false;
-		if(pr.getBatteryTo() != null && pr.getBatteryTo() < this.batteryInMamp)
+		if(storageInGB > 0.0d && pr.getStorageTo() != null && pr.getStorageTo() < this.storageInGB)
+			return false;
+		
+		if(cameraResolutionInMP > 0.0d && pr.getCameraFrom() != null && pr.getCameraFrom() > this.cameraResolutionInMP)
+			return false;
+		if(cameraResolutionInMP > 0.0d && pr.getCameraTo() != null && pr.getCameraTo() < this.cameraResolutionInMP)
+			return false;
+		
+		if(batteryInMamp > 0.0d && pr.getBatteryFrom() != null && pr.getBatteryFrom() > this.batteryInMamp)
+			return false;
+		if(batteryInMamp > 0.0d && pr.getBatteryTo() != null && pr.getBatteryTo() < this.batteryInMamp)
 			return false;
 				
-		if(pr.getWeightFrom() != null && pr.getWeightFrom() > this.weight)
+		if(weight > 0.0d && pr.getWeightFrom() != null && pr.getWeightFrom() > this.weight)
 			return false;
-		if(pr.getWeightTo() != null && pr.getWeightTo() < this.weight)
+		if(weight > 0.0d && pr.getWeightTo() != null && pr.getWeightTo() < this.weight)
 			return false;
 		
 		if (pr.isAndroid() && this.operatingSystem.equalsIgnoreCase("android"))

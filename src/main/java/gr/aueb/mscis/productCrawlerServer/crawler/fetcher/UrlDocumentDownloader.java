@@ -40,10 +40,12 @@ public class UrlDocumentDownloader implements IDocumentDownloader{
 	private StringBuilder readFromStream(URLConnection connection, String charset){
 		StringBuilder resultSB = new StringBuilder();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), charset))){
-			char[] buffer = new char[1024];
-			while(br.read(buffer) != -1){
-				resultSB.append(buffer);
+			String line = "";
+			while((line=br.readLine()) != null){
+				resultSB.append(line);
+				resultSB.append("\n");
 			}
+			
 		} catch (IOException e){
 			logger.warn("Exception while handling input stream from url", e);
 		}
