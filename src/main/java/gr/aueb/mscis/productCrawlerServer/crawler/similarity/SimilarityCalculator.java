@@ -40,27 +40,15 @@ public class SimilarityCalculator {
 	}
 	
 	public boolean isProductMatch(ProductSchema ps0, ProductSchema ps1, double threshold){
-		boolean sameName = false;
+		boolean sameName = false, sameManufacturer = false;
 		
 		if (equalsJaroWinkler(ps0.getNameCleared(), ps1.getNameCleared(), threshold))
 			sameName = true;
 		
-		/*if (ps0.getManufacturer().equalsIgnoreCase(ps1.getManufacturer()))
+		if (ps0.getManufacturer().equalsIgnoreCase(ps1.getManufacturer()))
 			sameManufacturer = true;
 		
-		if (ps0.getScreenResolution().equalsIgnoreCase(ps1.getScreenResolution()))
-			sameResolution = true;
 		
-		if (ps0.getScreenSize() == ps1.getScreenSize())
-			sameScreenSize = true;
-		
-		if (ps0.getRam().intValue() == ps1.getRam().intValue())
-			sameRam = true;*/
-		
-		System.out.println("Comparing ps0 " + ps0.getNameCleared());
-		System.out.println("Comparing ps1 " + ps1.getNameCleared());
-		System.out.println("result: " + sameName);
-		
-		return sameName/*&&sameManufacturer&&sameRam&&(sameScreenSize||sameResolution)*/;
+		return sameName&&sameManufacturer;
 	}
 }

@@ -192,10 +192,14 @@ public class GenericParser extends GenericHTMLDocumentParser{
 				Optional<Element> imageElement = document.select(productSelector.getProductImageSelector()).stream().findAny();
 				if (imageElement.isPresent()){
 					String possibleImage = imageElement.get().attr("href");
-					if (possibleImage.length() > 0)
+					if (possibleImage.length() > 0){
+						if (isRelativeURL(productUrl, possibleImage))
+							possibleImage = productUrl.getProtocol() + "://" + productUrl.getHost() + (possibleImage.startsWith("/")?possibleImage:"/"+possibleImage);
 						productBuilder.setImageUrl(possibleImage);
-					else{
+					} else{
 						possibleImage = imageElement.get().attr("src");
+						if (possibleImage.length() > 0 && isRelativeURL(productUrl, possibleImage))
+							possibleImage = productUrl.getProtocol() + "://" + productUrl.getHost() + (possibleImage.startsWith("/")?possibleImage:"/"+possibleImage);
 						productBuilder.setImageUrl(possibleImage);
 					}
 				}

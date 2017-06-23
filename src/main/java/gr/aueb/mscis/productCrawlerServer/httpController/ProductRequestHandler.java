@@ -71,6 +71,7 @@ public class ProductRequestHandler {
 		return 
 				merged
 				.stream()
+				.filter(set->!set.isEmpty())
 				.map(set-> new ProductResponse(set))
 				.collect(Collectors.toList());
 	}
