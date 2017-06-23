@@ -91,7 +91,9 @@ public class SchemaMatcher {
 		.setNetwork(findNetwork(product))
 		.setWeight(findWeight(product));
 		
-		return new ProductSchema(builder, product);
+		ProductSchema ps =new ProductSchema(builder, product);
+		logger.info("Schema matched product: " + ps);
+		return ps;
 	}
 	
 	private String findName(Product product){
@@ -239,7 +241,7 @@ public class SchemaMatcher {
 				.filter(tok -> appleKeyword.equalsIgnoreCase(tok) || iosKeyword.equalsIgnoreCase(tok) || iphoneKeyword.equalsIgnoreCase(tok) || androidKeyword.equalsIgnoreCase(tok))
 				.findFirst();
 		if (osOpt.isPresent()){
-			return osOpt.get().toLowerCase().replaceAll("apple", "ios");
+			return osOpt.get().toLowerCase().replaceAll("(apple|iphone)", "ios");
 		}
 		
 		

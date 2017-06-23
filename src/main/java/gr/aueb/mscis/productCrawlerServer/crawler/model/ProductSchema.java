@@ -1,11 +1,15 @@
 package gr.aueb.mscis.productCrawlerServer.crawler.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import gr.aueb.mscis.productCrawlerServer.crawler.matcher.SchemaMatcher;
-import gr.aueb.mscis.productCrawlerServer.crawler.similarity.SimilarityCalculator;
 import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequest;
+import info.debatty.java.stringsimilarity.Cosine;
+import info.debatty.java.stringsimilarity.JaroWinkler;
 
 public class ProductSchema{
 	public static class Builder{
@@ -143,38 +147,35 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	/*private boolean isValid(){
+	public boolean isValid(ProductRequest pr){
 		if (name.length() == 0 
 				||
-				manufacturer.length() == 0
+				(pr.getManufacturer() != null && manufacturer.length() == 0)
 				||
-				screenResolution.length() == 0
+				(pr.getScreenResolution() != null && screenResolution.length() == 0)
 				||
-				network.length() == 0
+				(pr.getNetwork() != null && network.length() == 0)
 				||
-				screenSize < 0
+				((pr.getScreesizeFrom() != null || pr.getScreensizeTo() != null) && screenSize < 0)
 				||
-				ram < 0
+				((pr.getRamFrom() != null || pr.getRamTo() != null) && ram < 0)
 				||
-				storageInGB < 0
+				((pr.getStorageFrom() != null || pr.getStorageTo() != null) && storageInGB < 0)
 				||
-				cameraResolutionInMP < 0
+				((pr.getCameraFrom() != null || pr.getCameraTo() != null) && cameraResolutionInMP < 0)
 				||
-				batteryInMamp < 0
+				((pr.getBatteryFrom() != null || pr.getBatteryTo() != null) && batteryInMamp < 0)
 				||
-				weight < 0
+				((pr.getWeightFrom() != null || pr.getWeightTo() != null) && weight < 0)
 				||
-				operatingSystem.length() == 0){
+				((pr.isAndroid() || pr.isIOS() || pr.isWindows() || pr.isOther()) && operatingSystem.length() == 0)){
 			return false;
 		}
 		return true;
-	}*/
-	public boolean matchProductRequestCriteria(SimilarityCalculator ssc, ProductRequest pr, double threshold){
-		//ProductRequest [searchString=samsung, screenResolution=, 
-		//manufacturer=, network=, screesizeFrom=4, screensizeTo=6, ramFrom=2, ramTo=4, 
-		//storageFrom=4, storageTo=16, cameraFrom=8, cameraTo=12, weightFrom=150, weightTo=210, 
-		//batteryFrom=2500, batteryTo=3000, isAndroid=false, isIOS=false, isWindows=false, isOther=false, priceFrom=null, priceTo=null]
-		if (name.length() > 0 && pr.getSearchString() != null && !ssc.isSearchMatch(name, pr.getSearchString().toLowerCase(), threshold)){
+	}
+	public boolean matchProductRequestCriteria(ProductRequest pr, double threshold){
+
+		if (name.length() > 0 && pr.getSearchString() != null && !this.isNameSearchMatch(pr.getSearchString().toLowerCase(), threshold)){
 			return false;
 		}
 		
@@ -228,24 +229,62 @@ public class ProductSchema{
 			return false;
 		if(weight > 0.0d && pr.getWeightTo() != null && pr.getWeightTo() < this.weight)
 			return false;
-		
-		if (pr.isAndroid() && this.operatingSystem.equalsIgnoreCase("android"))
-			return true;
-		if (pr.isIOS() && this.operatingSystem.equalsIgnoreCase("ios"))
-			return true;
-		if (pr.isWindows() && this.operatingSystem.equalsIgnoreCase("windows"))
-			return true;
-		if (pr.isOther() && this.operatingSystem.length() > 0)
-			return true;
 
-		return true;
+		boolean os = (!pr.isAndroid() && !pr.isIOS() && !pr.isWindows() && !pr.isOther())?true:false;
+		if (pr.isAndroid() == true){
+			if (this.operatingSystem.equalsIgnoreCase("android"))
+				os = true;
+		}
+		if (pr.isIOS() == true){
+			if (this.operatingSystem.equalsIgnoreCase("ios"))
+				os = true;
+		}
+		if (pr.isWindows() == true){
+			if (this.operatingSystem.equalsIgnoreCase("windows"))
+				os = true;
+		}
+		if (pr.isOther() == true){
+			if (this.operatingSystem.isEmpty())
+				os = true;
+		}
+		return os;
+	}
+	public boolean isNameSearchMatch(String search, double threshold){
+		List<String> actualTokens = Arrays.asList(name.split("\\s")).stream().distinct().filter(str->str.length()>0).collect(Collectors.toList());
+		List<String> searchTokens = Arrays.asList(search.split("\\s")).stream().distinct().filter(str->str.length()>0).collect(Collectors.toList());
+		
+		return 
+				searchTokens
+					.parallelStream()
+					.filter(stoken-> actualTokens.parallelStream().filter(at-> equalsJaroWinkler(stoken, at, threshold)).count() > 0)
+					.count() == searchTokens.size()?true:false;
+	}
+	
+	
+	public boolean isProductMatch(ProductSchema productSchemaToMatch, double threshold){
+		boolean sameName = false;
+		
+		if (equalsJaroWinkler(this.getNameCleared(), productSchemaToMatch.getNameCleared(), threshold))
+			sameName = true;
+		
+		
+		return sameName;
+	}
+	public boolean equalsJaroWinkler(String str0, String str1, double threshold){
+		JaroWinkler jw = new JaroWinkler();
+		double similarity = jw.similarity(str0, str1);
+		return similarity>=threshold?true:false;
+	}
+	
+	public boolean equalsCosine4(String str0, String str1, double threshold){
+		Cosine cos = new Cosine(4);
+		double similarity = cos.similarity(str0, str1);
+		return similarity>=threshold?true:false;
 	}
 	public Product getProduct(){
 		return this.product;
 	}
-	public String getName() {
-		return name;
-	}
+	
 	public String getNameCleared(){
 		return name.replaceAll("("+manufacturer+"|"+screenResolution+"|"+operatingSystem+")", "")
 				.replaceAll("(\\d)+(\\s){0,1}(gb|mb)+", "")
@@ -265,41 +304,7 @@ public class ProductSchema{
 				.replaceAll("(\\s)+"," ")
 				.trim();
 	}
-	public Double getPrice() {
-		return price;
-	}
-	public Double getScreenSize() {
-		return screenSize;
-	}
-	public Double getRam() {
-		return ram;
-	}
-	public String getScreenResolution() {
-		return screenResolution;
-	}
-	public Double getStorageInGB() {
-		return storageInGB;
-	}
-	public Double getCameraResolutionInMP() {
-		return cameraResolutionInMP;
-	}
-	public String getOperatingSystem() {
-		return operatingSystem;
-	}
-	public Integer getBatteryInMamp() {
-		return batteryInMamp;
-	}
-	public String getManufacturer() {
-		return manufacturer;
-	}
-	public String getNetwork() {
-		return network;
-	}
-	public Integer getWeight(){
-		return weight;
-	}
 	
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -13,17 +13,20 @@ public class GenericResponse<T> implements Serializable {
 	
 	protected final int status;
 	protected final int total;
+	protected final long executionTimeInMs;
 	protected final List<T> data;
 	
-	public GenericResponse(List<T> data) {
+	/*public GenericResponse(List<T> data, long executionTimeInMs) {
 		this.data = data;
 		this.status = 200;
 		total = data.size();
-	}
-	public GenericResponse(List<T> data, int status) {
+		this.executionTimeInMs = executionTimeInMs;
+	}*/
+	public GenericResponse(List<T> data, int status, long executionTimeInMs) {
 		this.data = data;
 		this.status = status;
 		total = data.size();
+		this.executionTimeInMs = executionTimeInMs;
 	}
 	public String serializeToJson(){
 		Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().disableHtmlEscaping().create();

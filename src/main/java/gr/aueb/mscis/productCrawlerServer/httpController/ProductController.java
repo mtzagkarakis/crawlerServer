@@ -1,5 +1,7 @@
 package gr.aueb.mscis.productCrawlerServer.httpController;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,7 @@ public class ProductController {
 	
 	public Route getProductCached(){
 		return (req, res)->{
-			
+			Instant start = Instant.now();
 			List<SourceRecord> sources = 
 				EntityManagerUtils.doInTransaction(em-> {
 					return em.createQuery("select sr from SourceRecord sr where sr.isActive>0", SourceRecord.class).getResultList();
@@ -45,16 +47,16 @@ public class ProductController {
 			ProductRequestHandler prh = getProductRequestHandlerCached();
 			try{
 				Map<String, String> query = req.queryMap().toMap().entrySet().stream().collect(Collectors.toMap(en->en.getKey(), en->en.getValue()[0]));
-				return new GenericResponse<ProductResponse>(prh.getProductsFilteredAndNested(sources, new ProductRequest(query)), 200).serializeToJson();
+				return new GenericResponse<ProductResponse>(prh.getProductsFilteredAndNested(sources, new ProductRequest(query)), 200, Duration.between(start, Instant.now()).toMillis()).serializeToJson();
 			} catch (Exception e) {
 				logger.error("Error While getting products", e);
-				return new GenericResponse<>(Arrays.asList(), 500).serializeToJson();
+				return new GenericResponse<ProductResponse>(Arrays.asList(), 500, Duration.between(start, Instant.now()).toMillis()).serializeToJson();
 			}
 		};
 	}
 	public Route getProduct(){
 		return (req, res)->{
-			
+			Instant start = Instant.now();
 			List<SourceRecord> sources = 
 					EntityManagerUtils.doInTransaction(em-> {
 						return em.createQuery("select sr from SourceRecord sr where sr.isActive>0", SourceRecord.class).getResultList();
@@ -65,10 +67,10 @@ public class ProductController {
 			ProductRequestHandler prh = getProductRequestHandler();
 			try{
 				Map<String, String> query = req.queryMap().toMap().entrySet().stream().collect(Collectors.toMap(en->en.getKey(), en->en.getValue()[0]));
-				return new GenericResponse<ProductResponse>(prh.getProductsFilteredAndNested(sources, new ProductRequest(query)), 200).serializeToJson();
+				return new GenericResponse<ProductResponse>(prh.getProductsFilteredAndNested(sources, new ProductRequest(query)), 200, Duration.between(start, Instant.now()).toMillis()).serializeToJson();
 			} catch (Exception e) {
 				logger.error("Error While getting products", e);
-				return new GenericResponse<>(Arrays.asList(), 500).serializeToJson();
+				return new GenericResponse<ProductResponse>(Arrays.asList(), 500, Duration.between(start, Instant.now()).toMillis()).serializeToJson();
 			}
 		};
 	}

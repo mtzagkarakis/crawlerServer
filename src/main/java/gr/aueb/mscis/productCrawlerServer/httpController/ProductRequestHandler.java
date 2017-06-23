@@ -17,7 +17,6 @@ import gr.aueb.mscis.productCrawlerServer.crawler.model.DocumentMeta;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.Product;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.ProductSchema;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.UrlWithContentEncoding;
-import gr.aueb.mscis.productCrawlerServer.crawler.similarity.SimilarityCalculator;
 import gr.aueb.mscis.productCrawlerServer.db.model.SourceRecord;
 import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequest;
 import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductResponse;
@@ -26,7 +25,6 @@ public class ProductRequestHandler {
 	private final static Logger logger = Logger.getLogger(ProductRequestHandler.class.getName());
 	private final ProductFetcher productFetcher;
 	SchemaMatcher schemaMatcher = new SchemaMatcher();
-	SimilarityCalculator sc = new SimilarityCalculator();
 	
 	public ProductRequestHandler(IDocumentDownloader documentDownloader, ForkJoinPool forkJoinPool){ 
 		this.productFetcher = new ProductFetcher(forkJoinPool, documentDownloader);
@@ -34,24 +32,18 @@ public class ProductRequestHandler {
 	public List<ProductResponse> getProductsFilteredAndNested(List<SourceRecord> sources, ProductRequest productRequest){
 		logger.info("Incoming product request: " + productRequest);
 		logger.info("Downloading pages");
-		List<Product> products = getProductsFromAllSourcesFlat(sources);
-		logger.info("Found products: " + products.size());
+		
 		//schema matching
-		logger.info("Schema matching and filtering");
-		Stream<ProductSchema> productSchemaStream = products
-				.stream()
-				.map(pr->schemaMatcher.convert(pr))
-				.filter(ps -> ps.matchProductRequestCriteria(sc, productRequest, 0.8d));//basically is doing search with the name attribute
+		logger.info("Schema matching");
+		List<ProductSchema> filteredProducts = getProductsFromAllSourcesFlat(sources).map(pr->schemaMatcher.convert(pr)).collect(Collectors.toList());
+		logger.info("Found products: " + filteredProducts.size());
 		
 		//entity resolution
 		logger.info("Entity Resolution");
-		List<ProductSchema> filteredProducts = productSchemaStream.collect(Collectors.toList());
-		logger.info("Valid product: " + filteredProducts.size());
-		
 		List<Set<ProductSchema>> lists =
 			filteredProducts
 			.stream()
-			.map(ps -> filteredProducts.stream().filter(ps0 -> sc.isProductMatch(ps, ps0, 0.85d)).collect(Collectors.toSet()))
+			.map(ps -> filteredProducts.stream().filter(ps0 -> ps.isProductMatch(ps0, 0.90d)).collect(Collectors.toSet()))
 			.filter(set->!set.isEmpty())
 			.collect(Collectors.toList());//the set contains all matched 
 
@@ -68,20 +60,24 @@ public class ProductRequestHandler {
 			merged.add(localMerge);
 		}
 		
-		return 
+		List<ProductResponse> 
+			responseSets = 
 				merged
 				.stream()
-				.filter(set->!set.isEmpty())
+				.filter(set -> set.stream().filter(prSchema->prSchema.isValid(productRequest) && prSchema.matchProductRequestCriteria(productRequest, 0.80d)).findAny().isPresent())
 				.map(set-> new ProductResponse(set))
 				.collect(Collectors.toList());
+		logger.info("Result set size: " + responseSets.size() + " avarage set size: " + responseSets.stream().map(pr->pr.getProductSet().size()).collect(Collectors.averagingInt(size->size)).doubleValue());
+		return responseSets;
+		
 	}
-	public List<Product> getProductsFromAllSourcesFlat(List<SourceRecord> sources) {
+	public Stream<Product> getProductsFromAllSourcesFlat(List<SourceRecord> sources) {
 		DocumentSelectorCreator urlToSelector = new DocumentSelectorCreator(sources);
 		Stream<DocumentMeta> documents = productFetcher.downloadDocuments(urlToSelector.getAllUrlsWithEncodingFromSource().stream());
 		Stream<UrlWithContentEncoding> urls = productFetcher.extractProductPagesFromMainCategoryDocument(urlToSelector.paginationPagesFromDocuments(documents));
 		documents = productFetcher.downloadDocuments(urls);
 		urls = productFetcher.extractProductUrlsFromProductPageDocuments(urlToSelector.productUrlPagesFromDocuments(documents));
 		documents = productFetcher.downloadDocuments(urls);
-		return productFetcher.extractProductFromProductDocument(urlToSelector.productsFromDocuments(documents)).collect(Collectors.toList());
+		return productFetcher.extractProductFromProductDocument(urlToSelector.productsFromDocuments(documents));//.collect(Collectors.toList());
 	}
 }
