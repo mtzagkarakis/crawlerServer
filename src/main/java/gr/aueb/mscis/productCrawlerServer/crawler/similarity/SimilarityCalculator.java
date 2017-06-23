@@ -36,19 +36,16 @@ public class SimilarityCalculator {
 	public boolean equalsCosine4(String str0, String str1, double threshold){
 		Cosine cos = new Cosine(4);
 		double similarity = cos.similarity(str0, str1);
-		boolean result = similarity>=threshold?true:false;
-		if (result && !str0.equalsIgnoreCase(str1))
-			System.out.println("TRUE from " + str0 + " AND " + str1);
-		return result;
+		return similarity>=threshold?true:false;
 	}
 	
 	public boolean isProductMatch(ProductSchema ps0, ProductSchema ps1, double threshold){
-		boolean sameName = false, sameScreenSize = false, sameRam = false, sameManufacturer = false, sameResolution=false;
+		boolean sameName = false;
 		
 		if (equalsJaroWinkler(ps0.getNameCleared(), ps1.getNameCleared(), threshold))
 			sameName = true;
 		
-		if (ps0.getManufacturer().equalsIgnoreCase(ps1.getManufacturer()))
+		/*if (ps0.getManufacturer().equalsIgnoreCase(ps1.getManufacturer()))
 			sameManufacturer = true;
 		
 		if (ps0.getScreenResolution().equalsIgnoreCase(ps1.getScreenResolution()))
@@ -58,10 +55,12 @@ public class SimilarityCalculator {
 			sameScreenSize = true;
 		
 		if (ps0.getRam().intValue() == ps1.getRam().intValue())
-			sameRam = true;
+			sameRam = true;*/
 		
+		System.out.println("Comparing ps0 " + ps0.getNameCleared());
+		System.out.println("Comparing ps1 " + ps1.getNameCleared());
+		System.out.println("result: " + sameName);
 		
-		
-		return sameName&&sameManufacturer&&sameRam&&(sameScreenSize||sameResolution);
+		return sameName/*&&sameManufacturer&&sameRam&&(sameScreenSize||sameResolution)*/;
 	}
 }

@@ -3,6 +3,7 @@ package gr.aueb.mscis.productCrawlerServer.crawler.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import gr.aueb.mscis.productCrawlerServer.crawler.matcher.SchemaMatcher;
 import gr.aueb.mscis.productCrawlerServer.crawler.similarity.SimilarityCalculator;
 import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequest;
 
@@ -142,7 +143,7 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	private boolean isValid(){
+	/*private boolean isValid(){
 		System.out.println(this);
 		if (name.length() == 0 
 				||
@@ -168,32 +169,41 @@ public class ProductSchema{
 			return false;
 		}
 		return true;
-	}
+	}*/
 	public boolean matchProductRequestCriteria(SimilarityCalculator ssc, ProductRequest pr, double threshold){
 		//ProductRequest [searchString=samsung, screenResolution=, 
 		//manufacturer=, network=, screesizeFrom=4, screensizeTo=6, ramFrom=2, ramTo=4, 
 		//storageFrom=4, storageTo=16, cameraFrom=8, cameraTo=12, weightFrom=150, weightTo=210, 
 		//batteryFrom=2500, batteryTo=3000, isAndroid=false, isIOS=false, isWindows=false, isOther=false, priceFrom=null, priceTo=null]
-		System.out.println(this.toString());
-		if (name.length() > 0 && pr.getSearchString() != null && !ssc.isSearchMatch(name, pr.getSearchString().toLowerCase(), threshold))
+		if (name.length() > 0 && pr.getSearchString() != null && !ssc.isSearchMatch(name, pr.getSearchString().toLowerCase(), threshold)){
 			return false;
+		}
 		
-		if (screenResolution.length() > 0 && pr.getScreenResolution() != null && !pr.getScreenResolution().equalsIgnoreCase(this.screenResolution))
+		if (screenResolution.length() > 0 && pr.getScreenResolution() != null && !pr.getScreenResolution().equalsIgnoreCase(this.screenResolution)){
 			return false;
-		if (manufacturer.length() > 0 && pr.getManufacturer() != null && !pr.getManufacturer().equalsIgnoreCase(this.manufacturer))
+		}
+		if (manufacturer.length() > 0 && pr.getManufacturer() != null && !pr.getManufacturer().equalsIgnoreCase(this.manufacturer)){
 			return false;
-		if (network.length() > 0 && pr.getNetwork() != null && !pr.getNetwork().equalsIgnoreCase(this.network))
-			return false;
+		}
+			
 		
-		if(price > 0.0d && pr.getPriceFrom() != null && pr.getPriceFrom().doubleValue() > this.price)
+		if (network.length() > 0 && pr.getNetwork() != null && !pr.getNetwork().equalsIgnoreCase(this.network)){
 			return false;
-		if(price > 0.0d && pr.getPriceTo() != null && pr.getPriceTo().doubleValue() < this.price)
-			return false;
+		}
 		
-		if(screenSize > 0.0d && pr.getScreesizeFrom() != null && pr.getScreesizeFrom() > this.screenSize)
+		if(price > 0.0d && pr.getPriceFrom() != null && pr.getPriceFrom().doubleValue() > this.price){
 			return false;
-		if(screenSize > 0.0d && pr.getScreensizeTo() != null && pr.getScreensizeTo() < this.screenSize)
+		}
+		if(price > 0.0d && pr.getPriceTo() != null && pr.getPriceTo().doubleValue() < this.price){
 			return false;
+		}
+		
+		if(screenSize > 0.0d && pr.getScreesizeFrom() != null && pr.getScreesizeFrom() > this.screenSize){
+			return false;
+		}
+		if(screenSize > 0.0d && pr.getScreensizeTo() != null && pr.getScreensizeTo() < this.screenSize){
+			return false;
+		}
 		
 		if(ram > 0.0d && pr.getRamFrom() != null && pr.getRamFrom() > this.ram)
 			return false;
@@ -238,9 +248,23 @@ public class ProductSchema{
 		return name;
 	}
 	public String getNameCleared(){
-		return name.replaceAll("(?i)("+manufacturer+"|"+screenResolution+"|"+operatingSystem+"|"+network+"|"+storageInGB+")", "")
-				.replaceAll("(?i)(GB|MB|gr|eu)\\+", "")
-				.replaceAll("\\s"," ");
+		return name.replaceAll("("+manufacturer+"|"+screenResolution+"|"+operatingSystem+")", "")
+				.replaceAll("(\\d)+(\\s){0,1}(gb|mb)+", "")
+				.replaceAll("(gr|eu+)", "")
+				.replaceAll("(\\d+)(\\.){0,1}(\\d*)(\\s){0,1}(('){1,2}|(\"){1}|(”){1}|(inches){1})", "")
+				.replaceAll("(\\d+)(\\s){0,1}(mah){1}", "")
+				.replaceAll("(\\d+)(\\s){0,1}(gr|g){1}", "")
+				.replaceAll(SchemaMatcher.networkValueRegex, "")
+				.replace("/", "")
+				.replace("|", "")
+				.replace("(", "")
+				.replace(")", "")
+				.replace(",", "")
+				.replace(".", "")
+				.replace("'", "")
+				.replace("\"", "")
+				.replaceAll("(\\s)+"," ")
+				.trim();
 	}
 	public Double getPrice() {
 		return price;
