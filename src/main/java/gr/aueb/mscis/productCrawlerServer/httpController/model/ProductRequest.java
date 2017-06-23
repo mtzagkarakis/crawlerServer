@@ -4,12 +4,32 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 public class ProductRequest {
-	private final String searchString, screenResolution, manufacturer, network;
-	private final Integer screesizeFrom, screensizeTo, ramFrom, ramTo, storageFrom, storageTo, 
-				cameraFrom, cameraTo, weightFrom, weightTo, batteryFrom, batteryTo;
-	private final boolean isAndroid, isIOS, isWindows, isOther;
-	private final BigDecimal priceFrom, priceTo;
+	private final static Logger logger = Logger.getLogger(ProductRequest.class.getName());
+	private final String searchString;
+	private final String screenResolution;
+	private final String manufacturer;
+	private final String network;
+	private final Integer screesizeFrom;
+	private final Integer screensizeTo;
+	private final Integer ramFrom;
+	private final Integer ramTo;
+	private final Integer storageFrom;
+	private final Integer storageTo; 
+	private final Integer cameraFrom;
+	private final Integer cameraTo;
+	private final Integer weightFrom;
+	private final Integer weightTo;
+	private final Integer batteryFrom;
+	private final Integer batteryTo;
+	private final boolean isAndroid;
+	private final boolean isIOS;
+	private final boolean isWindows;
+	private final boolean isOther;
+	private final BigDecimal priceFrom;
+	private final BigDecimal priceTo;
 	/*?searchstring=123
 	 * &screensize-from=4&
 	 * screensize-to=6&
@@ -65,30 +85,33 @@ public class ProductRequest {
 	}
 	private Integer parseInt(String str){
 		if (str == null) return null;
+		if(str.isEmpty()) return null;
 		try{
 			return Integer.valueOf(str);
 		} catch (NullPointerException | NumberFormatException e) {
+			logger.debug("parameter was supposed to be an Integer but cannot be parsed: " + str, e);
 			return null;
 		}
 	}
 	
 	private BigDecimal parseBigDecimal(String str){
 		if (str == null) return null;
+		if(str.isEmpty()) return null;
 		try{
 			return (new BigDecimal(str)).setScale(2, RoundingMode.HALF_UP);
 		} catch (NullPointerException | NumberFormatException e) {
+			logger.debug("parameter was supposed to be an BigDecimal but cannot be parsed: " + str, e);
 			return null;
 		}
 	}
 	
 	private boolean parseIntAsBoolean(String str){
 		if (str == null) return false;
+		if(str.isEmpty()) return false;
 		try{
-			int val = Integer.valueOf(str);
-			if (val == 1)
-				return true;
-			return false;
+			return (Integer.parseInt(str)>0)?true:false;
 		} catch (NullPointerException | NumberFormatException e) {
+			logger.debug("parameter was supposed to be an Integer (parsed as boolean if > 0) but cannot be parsed: " + str, e);
 			return false;
 		}
 	}

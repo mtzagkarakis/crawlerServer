@@ -142,7 +142,7 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	private boolean isValid(){
+	/*private boolean isValid(){
 		System.out.println(this);
 		if (name.length() == 0 
 				||
@@ -168,7 +168,7 @@ public class ProductSchema{
 			return false;
 		}
 		return true;
-	}
+	}*/
 	public boolean matchProductRequestCriteria(SimilarityCalculator ssc, ProductRequest pr, double threshold){
 		//ProductRequest [searchString=samsung, screenResolution=, 
 		//manufacturer=, network=, screesizeFrom=4, screensizeTo=6, ramFrom=2, ramTo=4, 
