@@ -79,7 +79,7 @@ public class EntityManagerUtils {
 			em.close();
 		}
 	}
-	public static <T> T doInTransaction(Function<EntityManager, T> function){
+	public static <T> T doInTransactionAndReturn(Function<EntityManager, T> function){
 		EntityManager em = EntityManagerUtils.getEntityManager();
 		EntityTransaction et = null;
 		T result = null;

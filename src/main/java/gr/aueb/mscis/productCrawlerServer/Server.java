@@ -37,6 +37,7 @@ public class Server implements SparkApplication{
 		
 		get("/", productController.getProduct());
 		get("/cached", productController.getProductCached());
+		
 		notFound("<html><body><h1>Sorry! page not found (status 404)</h1></body></html>");
 	}
 	

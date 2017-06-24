@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import gr.aueb.mscis.productCrawlerServer.crawler.matcher.SchemaMatcher;
-import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequest;
+import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequestQuery;
 import info.debatty.java.stringsimilarity.Cosine;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 
@@ -147,7 +147,7 @@ public class ProductSchema{
 		this.operatingSystem = builder.getOperatingSystem();
 		
 	}
-	public boolean isValid(ProductRequest pr){
+	public boolean isValid(ProductRequestQuery pr){
 		if (name.length() == 0 
 				||
 				(pr.getManufacturer() != null && manufacturer.length() == 0)
@@ -173,7 +173,7 @@ public class ProductSchema{
 		}
 		return true;
 	}
-	public boolean matchProductRequestCriteria(ProductRequest pr, double threshold){
+	public boolean matchProductRequestCriteria(ProductRequestQuery pr, double threshold){
 
 		if (name.length() > 0 && pr.getSearchString() != null && !this.isNameSearchMatch(pr.getSearchString().toLowerCase(), threshold)){
 			return false;

@@ -6,8 +6,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-public class ProductRequest {
-	private final static Logger logger = Logger.getLogger(ProductRequest.class.getName());
+public class ProductRequestQuery {
+	private final static Logger logger = Logger.getLogger(ProductRequestQuery.class.getName());
 	private final String searchString;
 	private final String screenResolution;
 	private final String manufacturer;
@@ -30,31 +30,8 @@ public class ProductRequest {
 	private final boolean isOther;
 	private final BigDecimal priceFrom;
 	private final BigDecimal priceTo;
-	/*?searchstring=123
-	 * &screensize-from=4&
-	 * screensize-to=6&
-	 * ram-from=2&
-	 * ram-to=4&
-	 * screenresolution=480x640&
-	 * storage-from=4&
-	 * storage-to=16&
-	 * camera-from=8
-	 * &camera-to=12
-	 * &android-os=1&
-	 * apple-os=1
-	 * &windows-os=1&
-	 * other-os=1&
-	 * weight-from=150&
-	 * weight-to=210&
-	 * battery-from=2500&
-	 * battery-to=3000&
-	 * company=apple
-	 * &year=2012& --> not mapped
-	 * price-from=50
-	 * &price-to=500
-	 * &network=3g
-	τα os μόνο στην ουσία αν δεν είναι τσεκαρισμένα δε θα υπάρχουν πάνω καν στο query string*/
-	public ProductRequest(Map<String, String> params){
+	
+	public ProductRequestQuery(Map<String, String> params){
 		screesizeFrom = parseInt(params.get("screensize-from"));
 		screensizeTo = parseInt(params.get("screensize-to"));
 		ramFrom = parseInt(params.get("ram-from"));

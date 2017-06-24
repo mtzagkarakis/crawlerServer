@@ -1,5 +1,7 @@
 package gr.aueb.mscis.productCrawlerServer.httpController;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,8 +20,9 @@ import gr.aueb.mscis.productCrawlerServer.crawler.model.Product;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.ProductSchema;
 import gr.aueb.mscis.productCrawlerServer.crawler.model.UrlWithContentEncoding;
 import gr.aueb.mscis.productCrawlerServer.db.model.SourceRecord;
-import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequest;
+import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductRequestQuery;
 import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductResponse;
+import gr.aueb.mscis.productCrawlerServer.httpController.model.ProductResponseList;
 
 public class ProductRequestHandler {
 	private final static Logger logger = Logger.getLogger(ProductRequestHandler.class.getName());
@@ -29,17 +32,20 @@ public class ProductRequestHandler {
 	public ProductRequestHandler(IDocumentDownloader documentDownloader, ForkJoinPool forkJoinPool){ 
 		this.productFetcher = new ProductFetcher(forkJoinPool, documentDownloader);
 	}
-	public List<ProductResponse> getProductsFilteredAndNested(List<SourceRecord> sources, ProductRequest productRequest){
+	public ProductResponseList getProductsFilteredAndNested(List<SourceRecord> sources, ProductRequestQuery productRequest){
 		logger.info("Incoming product request: " + productRequest);
 		logger.info("Downloading pages");
 		
 		//schema matching
 		logger.info("Schema matching");
+		Instant downloadStart = Instant.now();
 		List<ProductSchema> filteredProducts = getProductsFromAllSourcesFlat(sources).map(pr->schemaMatcher.convert(pr)).collect(Collectors.toList());
+		Instant downloadFinish = Instant.now();
 		logger.info("Found products: " + filteredProducts.size());
 		
 		//entity resolution
 		logger.info("Entity Resolution");
+		Instant entityResolutionStart = Instant.now();
 		List<Set<ProductSchema>> lists =
 			filteredProducts
 			.stream()
@@ -68,7 +74,8 @@ public class ProductRequestHandler {
 				.map(set-> new ProductResponse(set))
 				.collect(Collectors.toList());
 		logger.info("Result set size: " + responseSets.size() + " avarage set size: " + responseSets.stream().map(pr->pr.getProductSet().size()).collect(Collectors.averagingInt(size->size)).doubleValue());
-		return responseSets;
+		Instant entityResolutionFinish = Instant.now();
+		return new ProductResponseList(responseSets, Duration.between(downloadStart, downloadFinish).toMillis(), Duration.between(entityResolutionStart, entityResolutionFinish).toMillis());
 		
 	}
 	public Stream<Product> getProductsFromAllSourcesFlat(List<SourceRecord> sources) {
