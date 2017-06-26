@@ -1,0 +1,283 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700&subset=greek');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.container {
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    max-width: 1300px;
+    text-align: center;
+}
+
+.empty-space {
+    height: 25px;
+}
+
+.small-empty-space {
+    height: 12px;
+}
+
+.search-field {
+    border: 1px solid rgba(0,0,0,.2);
+    padding: 15px;
+    margin: 0 auto;
+    background: transparent;
+    box-shadow: 2px 2px 2px #333;
+    outline: none;
+    width: 100%;
+    max-width: 700px;
+    font-family: inherit;
+    display: block;
+    border-radius: 4px;
+}
+
+.search-field:focus {
+    box-shadow: 3px 3px 9px #333;
+}
+
+.search-table {
+    max-width: 700px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.search-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    font-family: inherit;
+    border-radius: 3px;
+}
+
+.disclaimer {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.filter-table table {
+    width: 100%;
+    /*max-width: 650px;*/
+    margin: 0 auto;
+}
+
+.filter-table table tr td {
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    padding: 6px 0;
+    min-width: 150px;
+}
+
+.filter-table input[type="text"],
+.filter-table input[type="number"],
+.filter-table select {
+    width: 100%;
+    max-width: 150px;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.bold {
+    font-weight: bold;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+label {
+    font-weight: normal;
+    font-family: inherit;
+    font-size: 13px;
+    margin: 0;
+    cursor: pointer;
+}
+
+#results {
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 4px;
+    max-height: 400px;
+    overflow: auto;
+    padding: 5px 3px;
+    min-height: 650px;
+}
+
+.glyphicon {
+    margin-right:5px;
+}
+
+.thumbnail {
+    margin-bottom: 20px;
+    padding: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.item.list-group-item {
+    float: none;
+    width: 100%;
+    background-color: #fff;
+    margin-bottom: 10px;
+}
+
+.item.list-group-item:nth-of-type(odd):hover,.item.list-group-item:hover {
+    background: #428bca;
+}
+
+.item.list-group-item .list-group-image {
+    margin-right: 10px;
+}
+
+.item.list-group-item .thumbnail {
+    margin-bottom: 0;
+}
+
+.item.list-group-item .caption {
+    padding: 9px 9px 0 9px;
+}
+
+.item.list-group-item:nth-of-type(odd) {
+    background: #eeeeee;
+}
+
+.item.list-group-item:before, .item.list-group-item:after {
+    display: table;
+    content: " ";
+}
+
+.item.list-group-item img {
+    float: left;
+}
+
+.item.list-group-item:after {
+    clear: both;
+}
+
+.list-group-item-text {
+    margin: 0 0 11px;
+}
+
+.hidden {
+    display: none;
+}
+
+.list-group-item-heading,
+.list-group-item-text {
+    text-align: left;
+}
+
+.thumbnail .caption {
+    padding: 15px 6px 6px 6px !important;
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    margin: 0 auto;
+    bottom: 10px;
+}
+
+.thumbnail a>img, .thumbnail>img {
+    max-width: 200px;
+    width: 100%;
+}
+
+.thumbnail {
+    min-height: 350px;
+    max-height: 350px;
+    overflow: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+div[id^="prod-group-"] {
+    display: none;
+}
+
+#products {
+    position: relative;
+}
+
+.relative-products {
+    position: fixed;
+    right: 0;
+    left: 0;
+    top: 12%;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 9999;
+    padding: 30px 20px 40px 20px;
+    max-width: 1480px;
+    margin: 0 auto;
+    max-height: 720px;
+    border-radius: 9px;
+    box-shadow: 3px 3px 5px #999;
+    overflow: auto;
+    border: 1px solid #999;
+}
+
+.relative-products table {
+    background-color: #fff;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 9998;
+    background-color: gray;
+}
+
+.hide-prod-group {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.scrollable-cell {
+    max-height: 200px;
+    overflow: auto;
+    display: table-cell;
+}
+
+.cell-contents {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.table-header {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.table-data {
+    font-size: 13px;
+}
+
+#overlay {
+    background: rgba(0,0,0,.2) url('../../img/loading.gif') no-repeat center center;
+    z-index: 9999;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: 100%;
+}
+
+.pdf-group li {
+    cursor: pointer;
+}
+
+.pdf-group li:hover {
+    background-color: aliceblue;
+}

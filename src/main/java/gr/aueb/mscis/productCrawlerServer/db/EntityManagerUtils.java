@@ -24,6 +24,9 @@ public class EntityManagerUtils {
 		em.close();
 		return true;
 	}
+	private static final String jdbcPrefix = "jdbc:mysql:";
+	private static final String trueStr = "true";
+	private static final String falseStr = "false";
 	public static void init(String dbUrl, String dbUser,  String dbPass, boolean showSQL){
 		try {
 			Map<String, String> persistanceProps = new HashMap<>();
@@ -31,26 +34,26 @@ public class EntityManagerUtils {
 			persistanceProps.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
 			persistanceProps.put("javax.persistence.schema-generation.database.action", "none");
 			persistanceProps.put("hibernate.connection.zeroDateTimeBehavior", "convertToNull");
-			persistanceProps.put("hibernate.globally_quoted_identifiers", "true");
-			persistanceProps.put("hibernate.temp.use_jdbc_metadata_defaults", "false");
+			persistanceProps.put("hibernate.globally_quoted_identifiers", trueStr);
+			persistanceProps.put("hibernate.temp.use_jdbc_metadata_defaults", falseStr);
 			persistanceProps.put("hibernate.connection.CharSet", "utf8");
 			persistanceProps.put("hibernate.connection.characterEncoding", "utf8");
-			persistanceProps.put("hibernate.connection.useUnicode", "true");
-			persistanceProps.put("hibernate.connection.autocommit", "false");
+			persistanceProps.put("hibernate.connection.useUnicode", trueStr);
+			persistanceProps.put("hibernate.connection.autocommit", falseStr);
 //			persistanceProps.put("hibernate.connection.pool_size", "1");
 			
-			persistanceProps.put("javax.persistence.jdbc.url", "jdbc:mysql:"+dbUrl+"?useSSL=false&zeroDateTimeBehavior=convertToNull&useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF8");
+			persistanceProps.put("javax.persistence.jdbc.url", jdbcPrefix+dbUrl+"?useSSL=false&zeroDateTimeBehavior=convertToNull&useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF8");
 			persistanceProps.put("javax.persistence.jdbc.user", dbUser);
 			persistanceProps.put("javax.persistence.jdbc.password", dbPass);
 			
        		persistanceProps.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
        		persistanceProps.put("hikari.dataSourceClassName", "org.mariadb.jdbc.MySQLDataSource");
        		persistanceProps.put("hikari.autoCommit", "false");
-       		persistanceProps.put("hikari.dataSource.user", "jdbc:mysql:"+dbUser);
-			persistanceProps.put("hikari.dataSource.password", "jdbc:mysql:"+dbPass);
+       		persistanceProps.put("hikari.dataSource.user", jdbcPrefix+dbUser);
+			persistanceProps.put("hikari.dataSource.password", jdbcPrefix+dbPass);
        		
        		
-			String showSQLStr = showSQL?"true":"false";
+			String showSQLStr = showSQL?trueStr:falseStr;
 			persistanceProps.put("hibernate.show_sql", showSQLStr);
 			persistanceProps.put("hibernate.format_sql", showSQLStr);
 			

@@ -171,6 +171,8 @@ public class ProductSchema{
 				((pr.isAndroid() || pr.isIOS() || pr.isWindows() || pr.isOther()) && operatingSystem.length() == 0)){
 			return false;
 		}
+
+		
 		return true;
 	}
 	public boolean matchProductRequestCriteria(ProductRequestQuery pr, double threshold){
